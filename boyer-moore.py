@@ -25,15 +25,17 @@ def strmatch_bm(text, pat):
             # shift i so that it could match with last same char before 'j'
             # while we could not guarantee next whole matching could succeed
             # still need match from end to begin
-            i += m - 1 - min(j, last[ord(text[i])])
-            j = m-1
+            k = last[ord(text[i])]
+            if k < j: i += m - 1 - k
+            else: i += m - 1
+            j = m - 1
             print 'i={},j={}'.format(i,j)
     
     print 'not match found'
     
 def main():
-    text = 'Please help to take a look.'
-    pat = 'take'
+    text = 'xxdbc1234'
+    pat = 'ababc'
     strmatch_bm(text, pat)
     
 main()
