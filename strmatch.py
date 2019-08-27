@@ -1,6 +1,7 @@
 import os, sys, random
 
 def strmatch_bm(text, pat):
+    """build bad characters heuristic"""
     def _build_last(pat):
         last = [-1] * 256
         for i in xrange(len(pat)):
@@ -11,6 +12,7 @@ def strmatch_bm(text, pat):
     
     n = len(text)
     m = len(pat)
+    # do match from end to begin
     i,j = m-1, m-1
     while i < n:
         if text[i] == pat[j]:
@@ -20,14 +22,18 @@ def strmatch_bm(text, pat):
             i -= 1
             j -= 1
         else:
-            i += m - min(j, 1+last[ord(text[i])])
+            # shift i so that it could match with last same char before 'j'
+            # while we could not guarantee next whole matching could succeed
+            # still need match from end to begin
+            i += m - 1 - min(j, last[ord(text[i])])
             j = m-1
+            print 'i={},j={}'.format(i,j)
     
     print 'not match found'
     
 def main():
     text = 'Please help to take a look.'
-    pat = 'lookaa'
+    pat = 'take'
     strmatch_bm(text, pat)
     
 main()
