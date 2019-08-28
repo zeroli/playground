@@ -16,28 +16,36 @@ def mergeSort(data):
     print '<<merge sort>>\n{}'.format(data)
     def _mergeSort(data, l, r):
         #print 'l: {}, r: {}'.format(l, r)
-        if r - l == 1: return [data[l],]
-        data1 = _mergeSort(data, l, l+(r-l)/2)
-        data2 = _mergeSort(data, l+(r-l)/2, r)
+        if r - l == 1: return
+        p = l + (r - l) / 2
+        _mergeSort(data, l, p)
+        _mergeSort(data, p, r)
 
-        merged = []
+        data1 = [data[i] for i in xrange(l, p)]
+        data2 = [data[i] for i in xrange(p, r)]
+        #print 'data1: {}, data2: {}'.format(data1, data2)
+
         i = 0
         j = 0
+        m = 0
         while i < len(data1) and j < len(data2):
             if data1[i] < data2[j]:
-                merged.append(data1[i])
+                data[l+m] = data1[i]
                 i += 1
             else:
-                merged.append(data2[j])
+                data[l+m] = data2[j]
                 j += 1
-        
+            m += 1
+
         for k in xrange(i, len(data1)):
-            merged.append(data1[k])
+            data[l+m] = data1[k]
+            m += 1
         for k in xrange(j, len(data2)):
-            merged.append(data2[k])
-        return merged
-    merged = _mergeSort(data, 0, len(data))
-    print '>>>\n{}'.format(merged)
+            data[l+m] = data2[k]
+            m += 1
+
+    _mergeSort(data, 0, len(data))
+    print '>>>\n{}'.format(data)
 
 if __name__ == '__main__':
     data = [random.randint(1, 100) for i in xrange(1, 21)]
