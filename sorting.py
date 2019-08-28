@@ -11,6 +11,30 @@ def insertionSort(data):
             i -= 1
         data[i+1] = k
     print '>>>\n{}'.format(data)
+    return data
+
+def insertionSortBS(data):
+    print '<<insertion sort with binary search insertion location>>\n{}'.format(data)
+    for j in xrange(1, len(data)):
+        k = data[j]
+        i = 0 # insertion location where smaller than k, and will insert before this one
+        l = 0
+        r = j
+        while l < r:
+            i = l + (r - l) / 2 # insertion position
+            if k > data[i]:
+                i += 1 # if only one element left, need insert before the next one
+                l = i
+            elif k < data[i]:
+                r = i
+            else:
+                break
+        while j > i:
+            data[j] = data[j-1]
+            j -= 1
+        data[i] = k
+    print '>>>\n{}'.format(data)
+    return data
 
 def mergeSort(data):
     print '<<merge sort>>\n{}'.format(data)
@@ -58,8 +82,12 @@ def mergeSort(data):
 
     _mergeSort(data, 0, len(data))
     print '>>>\n{}'.format(data)
+    return data
 
 if __name__ == '__main__':
-    data = [random.randint(1, 100) for i in xrange(1, 21)]
-    insertionSort(copy.deepcopy(data))
-    mergeSort(copy.deepcopy(data))
+    data = [random.randint(1, 100) for i in xrange(1, 20)]
+    data1 = insertionSort(copy.deepcopy(data))
+    data2 = insertionSortBS(copy.deepcopy(data))
+    data3 = mergeSort(copy.deepcopy(data))
+    assert data1 == data2
+    assert data2 == data3
