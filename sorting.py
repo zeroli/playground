@@ -84,10 +84,28 @@ def mergeSort(data):
     print '>>>\n{}'.format(data)
     return data
 
+def countSort(data, K):
+    print '<<count sort>>\n{}'.format(data)
+
+    C = [0] * K
+    for x in data:
+        C[x] = C[x] + 1
+    for i in xrange(1, len(C)):
+        C[i] = C[i-1] + C[i]
+    data1 = [0] * len(data)
+    for x in data:
+        data1[C[x]-1] = x
+        C[x] -= 1
+    data = data1
+    print '>>>\n{}'.format(data)
+    return data
+
 if __name__ == '__main__':
-    data = [random.randint(1, 100) for i in xrange(1, 20)]
+    data = [random.randrange(0, 100) for i in xrange(1, 20)]
     data1 = insertionSort(copy.deepcopy(data))
     data2 = insertionSortBS(copy.deepcopy(data))
     data3 = mergeSort(copy.deepcopy(data))
+    data4 = countSort(copy.deepcopy(data), 100)
     assert data1 == data2
     assert data2 == data3
+    assert data1 == data4
