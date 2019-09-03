@@ -212,7 +212,7 @@ class BSTree(object):
 
 
 def test():
-    lst = [random.randint(0, 30) for i in xrange(10)]
+    lst = [random.randint(0, 30) for _ in xrange(10)]
     print lst
     bst = BSTree()
     map(lambda x: bst.insert(x), lst)
@@ -242,7 +242,7 @@ def test():
     print
     print '>> test successor'
     print bst.successor(lst[0])
-
+    print
     print '>> test predecessor'
     print bst.predecessor(lst[0])
     print
