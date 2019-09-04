@@ -46,7 +46,7 @@ class BSTree(object):
             print 'delete2: could not find key {}'.format(key)
             return
 
-        if cn.left or cn.right:
+        if cn.left == None or cn.right == None:
             y = cn
         else:
             y = self._successor(cn)
@@ -233,7 +233,8 @@ class BSTree(object):
 
 
 def test():
-    lst = [random.randint(0, 30) for _ in xrange(10)]
+    #lst = [random.randint(0, 30) for _ in xrange(10)]
+    lst = [4, 15, 3, 14, 5, 16, 7, 12, 6, 10]
     print lst
     bst = BSTree()
     map(lambda x: bst.insert(x), lst)
@@ -246,7 +247,8 @@ def test():
     print '>> test delete'
     bst.inorder()
     print
-    deletes = [random.randint(0, 30) for _ in xrange(10)]
+    #deletes = [random.randint(0, 30) for _ in xrange(10)]
+    deletes = [7, 3, 4, 7, 3, 19, 21, 24, 13, 13]
     print 'deletes: {}'.format(deletes)
 
     bst2 = copy.deepcopy(bst)
