@@ -12,6 +12,14 @@ class Tree(object):
             _inorder(tree.right)
         _inorder(self)
 
+    def postorder(self):
+        def _postorder(tree):
+            if not tree: return
+            _postorder(tree.left)
+            _postorder(tree.right)
+            print tree.val,
+        _postorder(self)
+
 def build_eval_tree(postfix_expr):
     print '>>postfix expr: {}'.format(postfix_expr)
     ops = ('+', '-', '*', '/')
@@ -22,7 +30,9 @@ def build_eval_tree(postfix_expr):
             s.append(Tree(c))
         else:
             assert len(s) >= 2, 'Error: no operands in stack for operator {}'.format(c)
-            s.append(Tree(c, s.pop(), s.pop()))
+            t1 = s.pop()
+            t2 = s.pop()
+            s.append(Tree(c, t2, t1))
     assert len(s) == 1, 'Error: postfix expr {} invalid'.format(postfix_expr)
     s[0].inorder()
 
