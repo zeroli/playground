@@ -7,9 +7,11 @@ class Tree(object):
     def inorder(self):
         def _inorder(tree):
             if not tree: return
+            if (tree.left and tree.right): print '(',
             _inorder(tree.left)
             print tree.val,
             _inorder(tree.right)
+            if (tree.left and tree.right): print ')',
         _inorder(self)
 
     def postorder(self):
