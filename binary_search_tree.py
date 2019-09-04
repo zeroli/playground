@@ -1,4 +1,5 @@
 import os, sys
+import copy
 import random
 
 class Node(object):
@@ -78,6 +79,32 @@ class BSTree(object):
         _deleteNode(cn)
 
 
+    def delete2(self, key):
+        cn = self.find(key)
+        if not cn:
+            print 'delete: could not find key {}'.format(key)
+            return
+
+        if cn.left or cn.right:
+            y = cn
+        else:
+            y = self._successor(cn)
+        if y.left:
+            x = y.left
+        else:
+            x = y.right
+
+        if x:
+            x.parent = y.parent
+        if y.parent == None:
+            self.root = x
+        elif y == y.parent.left:
+            y.parent.left = x
+        else:
+            y.parent.right = x
+        if cn != y:
+            cn.key = y.key
+
     def inorder(self):
         if not self.root: return
         cn = self.root
@@ -141,11 +168,7 @@ class BSTree(object):
         print 'could not found key {}'.format(key)
         return cn
 
-    def successor(self, key):
-        x = self.find(key)
-        if not x:
-            raise 'ERROR: not found key {}'.format(key)
-
+    def _successor(self, x):
         def _minNode(x):
             while x.left:
                 x = x.left
@@ -154,15 +177,22 @@ class BSTree(object):
             while x.right:
                 x = x.right
             return x
-
         if x.right:
             y = _minNode(x.right)
-            return y.key
+            return y
 
         y = x.parent
         while y and x == y.right:
             x = y
             y = y.parent
+        return y
+
+    def successor(self, key):
+        x = self.find(key)
+        if not x:
+            raise 'ERROR: not found key {}'.format(key)
+
+        y = self._successor(x)
         return y.key
 
     def predecessor(self, key):
@@ -220,12 +250,18 @@ def test():
     print
     print 'min:', bst.minKey(), ', max:', bst.maxKey()
 
-    map(lambda x: bst.find(x), [random.randint(0, 30) for i in xrange(10)])
+    map(lambda x: bst.find(x), [random.randint(0, 30) for _ in xrange(10)])
 
     print '>> test delete'
-    map(lambda x: bst.delete(x), [random.randint(0, 30) for i in xrange(10)])
+    deletes = [random.randint(0, 30) for _ in xrange(10)]
+    bst2 = copy.copy(bst)
+    map(lambda x: bst.delete(x), deletes)
     print 'after delete: '
     bst.inorder()
+    print
+    map(lambda x: bst2.delete2(x), deletes)
+    print 'after delete2: '
+    bst2.inorder()
     print
 
     print '>> test rangeQuery'
