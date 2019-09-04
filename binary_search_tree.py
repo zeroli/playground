@@ -37,52 +37,13 @@ class BSTree(object):
     def createNode(self, key):
         return Node(key)
 
-    def delete(self, key):
-        cn = self.find(key)
-        if not cn:
-            print 'delete: could not find key {}'.format(key)
-            return
-
-        def _findMinKey(n):
-            while n:
-                if not n.left: return n
-                n = n.left
-            return None
-        def _findMaxKey(n):
-            while n:
-                if not n.right: return n
-                n = n.right
-            return None
-
-        def _replaceNode(n, newn=None):
-            parent = n.parent
-            if parent:
-                if parent.left == n:
-                    parent.left = newn
-                if parent.right == n:
-                    parent.right = newn
-            if newn:
-                newn.parent = parent
-
-        def _deleteNode(n):
-            if n.left and n.right:
-                rn = _findMinKey(n.right)
-                assert rn
-                n.key = rn.key
-                _deleteNode(rn)
-            elif n.left:
-                _replaceNode(n, n.left)
-            elif n.right:
-                _replaceNode(n, n.right)
-            else:
-                _replaceNode(n)
-        _deleteNode(cn)
-
-
     def delete2(self, key):
+        """algo comes from <introduction to algorithms>
+        """
+        print '>>delete2 key {}'.format(key)
         cn = self.find(key)
         if not cn:
-            print 'delete: could not find key {}'.format(key)
+            print 'delete2: could not find key {}'.format(key)
             return
 
         if cn.left or cn.right:
@@ -104,6 +65,30 @@ class BSTree(object):
             y.parent.right = x
         if cn != y:
             cn.key = y.key
+
+    def delete3(self, key):
+        print '>>delete3 key {}'.format(key)
+        def _delete(key, t):
+            if not t:
+                print 'delete3: could not find key {}'.format(key)
+                return
+            if key < t.key:
+                t.left = _delete(key, t.left)
+            elif key > t.key:
+                t.right = _delete(key, t.right)
+            else: # found the key node
+                # have 2 children
+                if t.left and t.right:
+                    succ = self._successor(t)
+                    t.key = succ.key
+                    t.right = _delete(t.key, t.right)
+                else: # have 1 child or leaf node
+                    if t.left == None:
+                        t = t.right
+                    elif t.right == None:
+                        t = t.left
+            return t
+        self.root =  _delete(key, self.root)
 
     def inorder(self):
         if not self.root: return
@@ -193,13 +178,10 @@ class BSTree(object):
             raise 'ERROR: not found key {}'.format(key)
 
         y = self._successor(x)
-        return y.key
+        if y: return y.key
+        else: print '>>>>: no successor for key {}'.format(key)
 
-    def predecessor(self, key):
-        x = self.find(key)
-        if not x:
-            raise 'ERROR: not found key {}'.format(key)
-
+    def _predecessor(self, x):
         def _minNode(x):
             while x.left:
                 x = x.left
@@ -211,13 +193,22 @@ class BSTree(object):
 
         if x.left:
             y = _maxNode(x.left)
-            return y.key
+            return y
 
         y = x.parent
         while y and x == y.left:
             x = y
             y = y.parent
-        return y.key
+        return y
+
+    def predecessor(self, key):
+        x = self.find(key)
+        if not x:
+            raise 'ERROR: not found key {}'.format(key)
+
+        y = self._predecessor(x)
+        if y: return y.key
+        else: print '>>>>: no predecessor for key {}'.format(key)
 
     def rangeQuery(self, key1, key2):
         cn = self.root
@@ -253,15 +244,21 @@ def test():
     map(lambda x: bst.find(x), [random.randint(0, 30) for _ in xrange(10)])
 
     print '>> test delete'
-    deletes = [random.randint(0, 30) for _ in xrange(10)]
-    bst2 = copy.copy(bst)
-    map(lambda x: bst.delete(x), deletes)
-    print 'after delete: '
     bst.inorder()
     print
+    deletes = [random.randint(0, 30) for _ in xrange(10)]
+    print 'deletes: {}'.format(deletes)
+
+    bst2 = copy.deepcopy(bst)
     map(lambda x: bst2.delete2(x), deletes)
     print 'after delete2: '
     bst2.inorder()
+    print
+
+    bst3 = copy.deepcopy(bst)
+    map(lambda x: bst3.delete3(x), deletes)
+    print 'after delete3: '
+    bst3.inorder()
     print
 
     print '>> test rangeQuery'
@@ -271,8 +268,6 @@ def test():
         print 'range query: [{}, {}]'.format(key1, key2)
         print bst.rangeQuery(key1, key2)
 
-
-    map(lambda x: bst.insert(x), lst)
     print '>> tree traversal: ',
     bst.inorder()
     print
