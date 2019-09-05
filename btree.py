@@ -36,21 +36,17 @@ class BTreeNode(object):
         z = BTreeNode(y.t, y.isleaf)
         z.n = self.t - 1
 
-        for j in xrange(self.t-1):
-            z.keys[j] = y.keys[j+self.t]
+        # copy last half of keys in y to new node z
+        z.keys[0 : self.t-1] = y.keys[self.t : 2*self.t-1]
 
         if not y.isleaf:
-            for j in xrange(self.t):
-                z.children[j] = y.children[j+self.t]
+            # copy last half of childrens in y to new node z
+            z.children[0 : self.t] = y.children[self.t : 2*self.t]
         y.n = self.t - 1
 
-        for j in xrange(self.n, i, -1):
-            self.children[j+1] = self.children[j]
-
-        self.children[i+1] = z
-        for j in xrange(self.n-1, i-1, -1):
-            self.keys[j+1] = self.keys[j]
-        self.keys[i] = y.keys[self.t-1]
+        # move back to spare one more slot for new child
+        self.children.insert(i+1, z)
+        self.keys.insert(i, y.keys[self.t-1])
         self.n += 1
 
     def insertNonFull(self, key):
