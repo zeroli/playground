@@ -1,6 +1,9 @@
 import random
+from collections import deque
 
-"""my implementation for B tree"""
+"""my implementation for B tree
+refer to https://www.cs.usfca.edu/~galles/visualization/BTree.html animation
+"""
 class BTreeNode(object):
     def __init__(self, M):
         self.M = M # maxnum number of keys in this node
@@ -102,13 +105,37 @@ class BTree(object):
             self.root.traverse()
             print
 
+    def __str__(self):
+        s = []
+        q = deque()
+        q.append(self.root)
+        q.append(None) # special element to identify level ending
+        ilevel = 0
+        levelstr = []
+        while len(q):
+            node = q.popleft()
+            if node:
+                levelstr.append(str(node.keys))
+                for c in node.children:
+                    if c: q.append(c)
+            else:
+                s.append('L{}: {}'.format(ilevel, ' '.join(levelstr)))
+                ilevel += 1
+                levelstr = []
+                if len(q): q.append(None)
+        return '\n'.join(s)
+
 if __name__ == '__main__':
     lst = [random.randint(0, 100) for _ in xrange(20)]
-    #lst = [10, 0, 13, 14, 8, 20, 30, 40, 50, 45, ]
+    #lst = [10, 20, 30, 40, 50, 45, ]
+    print '>>random list:\n{}'.format(lst)
     M = 3
     btree = BTree(M)
     map(lambda x: btree.insert(x), lst)
+    print '>>btree traverse:'
     btree.traverse()
+    print '>>btree structure:\n{}'.format(btree)
+    print
     print '>>DO search 1<<'
     map(lambda x: btree.search(x), lst)
     print '>>DO search 2<<'
