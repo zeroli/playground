@@ -31,6 +31,16 @@ class BTreeNode(object):
         if len(self.children) and self.children[-1]:
             self.children[-1].traverse()
 
+    def search(self, key):
+        iloc = self.findSlot(key)
+        n = len(self.keys)
+        if iloc < n and self.keys[iloc] == key:
+            return True
+        elif self.children[iloc]:
+            return self.children[iloc].search(key)
+        else:
+            return False
+
 class BTree(object):
     def __init__(self, M):
         self.M = M
@@ -81,9 +91,16 @@ class BTree(object):
         node.children = node.children[m+1:]
         return (left, mkey)
 
+    def search(self, key):
+        print '>>search key {}'.format(key)
+        ret = self.root.search(key)
+        if ret: print ' >>> OK'
+        else: print ' >>> FAIL'
+
     def traverse(self):
         if self.root:
             self.root.traverse()
+            print
 
 if __name__ == '__main__':
     lst = [random.randint(0, 100) for _ in xrange(20)]
@@ -92,3 +109,7 @@ if __name__ == '__main__':
     btree = BTree(M)
     map(lambda x: btree.insert(x), lst)
     btree.traverse()
+    print '>>DO search 1<<'
+    map(lambda x: btree.search(x), lst)
+    print '>>DO search 2<<'
+    map(lambda x: btree.search(x), [random.randint(0, 100) for _ in xrange(20)])
