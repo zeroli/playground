@@ -58,7 +58,6 @@ class BTree(object):
             (t, key) = self._insert(node.children[iloc], key)
             if not t: return (None, None)
 
-        # ****only insert key at leaf node****
         node.keys.insert(iloc, key)
         node.children.insert(iloc, t)
         if n == 0:
