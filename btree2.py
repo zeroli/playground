@@ -1,5 +1,4 @@
 import random
-from collections import deque
 
 """my implementation for B tree
 refer to https://www.cs.usfca.edu/~galles/visualization/BTree.html animation
@@ -106,6 +105,7 @@ class BTree(object):
             print
 
     def __str__(self):
+        from collections import deque
         s = []
         q = deque()
         q.append(self.root)

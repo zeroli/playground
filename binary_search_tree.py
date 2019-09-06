@@ -231,13 +231,34 @@ class BSTree(object):
                 return []
         return _rangeQuery(cn, key1, key2)
 
+    def __str__(self):
+        from collections import deque
+        s = []
+        q = deque()
+        q.append(self.root)
+        q.append(None) # special element to identify level ending
+        ilevel = 0
+        levelstr = []
+        while len(q):
+            node = q.popleft()
+            if node:
+                levelstr.append(str(node.key))
+                if node.left: q.append(node.left)
+                if node.right: q.append(node.right)
+            else:
+                s.append('L{}: {}'.format(ilevel, ' '.join(levelstr)))
+                ilevel += 1
+                levelstr = []
+                if len(q): q.append(None)
+        return '\n'.join(s)
 
 def test():
     #lst = [random.randint(0, 30) for _ in xrange(10)]
     lst = [4, 15, 3, 14, 5, 16, 7, 12, 6, 10]
-    print lst
+    print '>>random list: {}'.format(lst)
     bst = BSTree()
     map(lambda x: bst.insert(x), lst)
+    print '>>bstree structure:\n{}'.format(bst)
     bst.inorder()
     print
     print 'min:', bst.minKey(), ', max:', bst.maxKey()
