@@ -264,7 +264,7 @@ def test():
     print
 
     print '>> test rangeQuery'
-    for i in xrange(10):
+    for _ in xrange(10):
         key1 = random.randint(0, 30)
         key2 = key1 + random.randint(0, 10)
         print 'range query: [{}, {}]'.format(key1, key2)
