@@ -286,6 +286,28 @@ class BSTree(object):
                     return r
         return _rank(self.root, key)
 
+    def deleteMin(self):
+        """delete minimum node
+        """
+        def _deleteMin(node):
+            if node == None: return None
+            if node.left == None:
+                return node.right
+            node.left = _deleteMin(node.left)
+            return node
+        self.root = _deleteMin(self.root)
+
+    def deleteMax(self):
+        """delete maximum node
+        """
+        def _deleteMax(node):
+            if node == None: return None
+            if node.right == None:
+                return node.left
+            node.right = _deleteMax(node.right)
+            return node
+        self.root = _deleteMax(self.root)
+
     def __str__(self):
         from collections import deque
         s = []
@@ -367,7 +389,19 @@ def test():
     else: print '>> NONE'
 
     print '>> test rank({})'.format(1000)
-    print bst.rank(1000) #lst[0])
+    print bst.rank(1000)
+
+    print '>> test rank({})'.format(lst[0])
+    print bst.rank(lst[0])
+
+    print 'bst structure:\n{}'.format(bst)
+    print '>> test deleteMin'
+    bst.deleteMin()
+    print '>> test deleteMax'
+    bst.deleteMax()
+    print 'bst structure:\n{}'.format(bst)
+    print 'bst traversal:'
+    bst.inorder()
 
 if __name__ == '__main__':
     test()
