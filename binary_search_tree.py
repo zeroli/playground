@@ -260,6 +260,32 @@ class BSTree(object):
                 return []
         return _rangeQuery(cn, key1, key2)
 
+    def rank(self, key):
+        """given key, return its ranking index
+        """
+        def _count(node):
+            if node == None: return 0
+            cnt = 1
+            if node.left:
+                cnt += _count(node.left)
+            if node.right:
+                cnt += _count(node.right)
+            return cnt
+
+        def _rank(node, key):
+            if node == None: return -1
+            if key == node.key:
+                return _count(node.left)
+            elif key < node.key:
+                return _rank(node.left, key)
+            else:
+                r = _rank(node.right, key)
+                if r >= 0:
+                    return _count(node.left) + 1 + _rank(node.right, key)
+                else:
+                    return r
+        return _rank(self.root, key)
+
     def __str__(self):
         from collections import deque
         s = []
@@ -339,6 +365,9 @@ def test():
     y = bst.ceiling(x)
     if y: print '>> {}'.format(y.key)
     else: print '>> NONE'
+
+    print '>> test rank({})'.format(1000)
+    print bst.rank(1000) #lst[0])
 
 if __name__ == '__main__':
     test()
