@@ -12,7 +12,6 @@ class Node(object):
 class BSTree(object):
     def __init__(self):
         self.root = None
-        pass
 
     def insert(self, key):
         def _insert(root, key):
@@ -210,6 +209,40 @@ class BSTree(object):
         if y: return y.key
         else: print '>>>>: no predecessor for key {}'.format(key)
 
+    def floor(self, key):
+        """given key, return the largest node that is smaller than this 'key'
+        """
+        def _floor(x, key):
+            if x == None: return None
+            if x.key == key:
+                return x
+            elif key < x.key:
+                return _floor(x.left, key)
+            else:
+                y = _floor(x.right, key)
+                if not y or y.key > key:
+                    return x
+                else:
+                    return y
+        return _floor(self.root, key)
+
+    def ceiling(self, key):
+        """given key, return the smallest node that is larger than this 'key'
+        """
+        def _ceiling(x, key):
+            if x == None: return None
+            if x.key == key:
+                return x
+            elif key > x.key:
+                return _ceiling(x.right, key)
+            else:
+                y = _ceiling(x.left, key)
+                if not y or y.key < key:
+                    return x
+                else:
+                    return y
+        return _ceiling(self.root, key)
+
     def rangeQuery(self, key1, key2):
         cn = self.root
 
@@ -253,8 +286,7 @@ class BSTree(object):
         return '\n'.join(s)
 
 def test():
-    #lst = [random.randint(0, 30) for _ in xrange(10)]
-    lst = [4, 15, 3, 14, 5, 16, 7, 12, 6, 10]
+    lst = [random.randint(0, 100) for _ in xrange(10)]
     print '>>random list: {}'.format(lst)
     bst = BSTree()
     map(lambda x: bst.insert(x), lst)
@@ -268,8 +300,7 @@ def test():
     print '>> test delete'
     bst.inorder()
     print
-    #deletes = [random.randint(0, 30) for _ in xrange(10)]
-    deletes = [7, 3, 4, 7, 3, 19, 21, 24, 13, 13]
+    deletes = [random.randint(0, 30) for _ in xrange(10)]
     print 'deletes: {}'.format(deletes)
 
     bst2 = copy.deepcopy(bst)
@@ -301,6 +332,17 @@ def test():
     print bst.predecessor(lst[0])
     print
 
+    x = random.randint(0, 100)
+    print '>> test floor({})'.format(x)
+    y = bst.floor(x)
+    if y: print '>> {}'.format(y.key)
+    else: print '>> NONE'
+
+    x = random.randint(0, 100)
+    print '>> test ceiling({})'.format(x)
+    y = bst.ceiling(x)
+    if y: print '>> {}'.format(y.key)
+    else: print '>> NONE'
 
 if __name__ == '__main__':
     test()
