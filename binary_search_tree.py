@@ -220,10 +220,8 @@ class BSTree(object):
                 return _floor(x.left, key)
             else:
                 y = _floor(x.right, key)
-                if not y or y.key > key:
-                    return x
-                else:
-                    return y
+                if y: return y
+                else: return x
         return _floor(self.root, key)
 
     def ceiling(self, key):
@@ -237,10 +235,8 @@ class BSTree(object):
                 return _ceiling(x.right, key)
             else:
                 y = _ceiling(x.left, key)
-                if not y or y.key < key:
-                    return x
-                else:
-                    return y
+                if y: return y
+                else: return x
         return _ceiling(self.root, key)
 
     def rangeQuery(self, key1, key2):
