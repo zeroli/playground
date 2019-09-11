@@ -22,8 +22,12 @@ def mergeInversion(data):
         j = 0
         m = l
         while m < r:
+            """
+            if location 'i' in data1 is bigger than location 'j' in data2, then any location >= i in data1
+            will be bigger than location 'j' in data2, due to data1 is in increasing order
+            """
             if data1[i] > data2[j]:
-                cnt += len(data1) - i - 1
+                cnt += len(data1) - i - 1 # here we append maxint to data1, so we minus 1 finally
             if data1[i] < data2[j]:
                 data[m] = data1[i]
                 i += 1

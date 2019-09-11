@@ -2,6 +2,13 @@ import os, sys, random
 import copy
 
 def insertionSort(data):
+    """
+    runtime complixity:
+    1) average: O(N^2/4) for comparison, and O(N^2/4) for exchange
+    2) worst case: O(N^2/2) for comparison, and O(N^2/2) for exchange, inversed order
+    3) best case: O(N) for comparison, and 0 exchange: sorted order
+    faster than any other sorting algo, for partially sorted data or sorted data
+    """
     print '<<insertion sort>>\n{}'.format(data)
     for j in xrange(1, len(data)):
         k = data[j]
