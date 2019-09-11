@@ -66,6 +66,7 @@ def find_largest_area3(lst):
             maxrange = (s[-1]+1, i-1) if s else (0, i-1)
 
     print '>>3) largest area: {}, range: {}'.format(maxarea, maxrange)
+    return (maxarea, maxrange)
 
 if __name__ == '__main__':
     lst = [random.randint(1, 100) for _ in xrange(20)]
