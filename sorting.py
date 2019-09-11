@@ -91,9 +91,11 @@ def mergeSort(data):
     print '>>>\n{}'.format(data)
     return data
 
-def countSort(data, K):
+def countSort(data):
     print '<<count sort>>\n{}'.format(data)
 
+    # pre-calcuate the data distribution range
+    K = max(data) + 1
     C = [0] * K
     for x in data:
         C[x] = C[x] + 1
@@ -107,12 +109,48 @@ def countSort(data, K):
     print '>>>\n{}'.format(data)
     return data
 
+def shellSort(data):
+    """refer to book <<Algorithm 4>>, 2.1 section
+    based on the truth that insertion sort is fast in partially sorted data
+    we can make any random order data to be partially sorted, by using different sampling
+    first sampling data using big interval, and then smaller and smaller interval, until the interval =1
+    to run final insertion sort
+    """
+    print '<<shell sort>>\n{}'.format(data)
+    N = len(data)
+    h = 1
+    while h < N/3: h = h * 3 + 1
+    #first big interval, then smaller interval, etc, until h = 1 for regular insertion sort
+    #the generated increasing intervals: 1, 4, 13, 40, 121, ... (N/3)
+    while h >= 1:
+        #perform h-sort the whole array
+        #sort several sub-arrays (N/h) in parrallel
+        for j in xrange(h, N):
+            # i = j
+            # while i >= h and data[i] < data[i-h]:
+            #     data[i], data[i-h] = data[i-h], data[i]
+            #     i -= h
+
+            k = data[j]
+            i = j - h
+            while i >= 0 and data[i] > k:
+                data[i + h] = data[i]
+                i -= h
+            data[i + h] = k
+        h /= 3
+    print '>>>\n{}'.format(data)
+    return data
+
 if __name__ == '__main__':
     data = [random.randrange(0, 100) for i in xrange(1, 20)]
+    data0 = sorted(data)
     data1 = insertionSort(copy.deepcopy(data))
     data2 = insertionSortBS(copy.deepcopy(data))
     data3 = mergeSort(copy.deepcopy(data))
-    data4 = countSort(copy.deepcopy(data), 100)
-    assert data1 == data2
-    assert data2 == data3
-    assert data1 == data4
+    data4 = countSort(copy.deepcopy(data))
+    data5 = shellSort(copy.deepcopy(data))
+    assert data0 == data1
+    assert data0 == data2
+    assert data0 == data3
+    assert data0 == data4
+    assert data0 == data5
