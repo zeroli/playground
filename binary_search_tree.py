@@ -308,6 +308,15 @@ class BSTree(object):
             return node
         self.root = _deleteMax(self.root)
 
+    def isBST(self):
+        def _isBST(node, minv, maxv):
+            if node == None: return True
+            if minv <= node.key <= maxv:
+                return _isBST(node.left, minv, node.key) and _isBST(node.right, node.key, maxv)
+            else:
+                return False
+        return _isBST(self.root, -sys.maxint-1, sys.maxint)
+
     def __str__(self):
         from collections import deque
         s = []
@@ -335,6 +344,7 @@ def test():
     bst = BSTree()
     map(lambda x: bst.insert(x), lst)
     print '>>bstree structure:\n{}'.format(bst)
+    assert bst.isBST() == True, 'ERROR: the tree is not binary search tree'
     bst.inorder()
     print
     print 'min:', bst.minKey(), ', max:', bst.maxKey()
