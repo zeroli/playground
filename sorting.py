@@ -153,6 +153,17 @@ def quickSort(data):
     print '>>>\n{}'.format(data)
     return data
 
+def heapSort(data):
+    print '<<heap sort>>\n{}'.format(data)
+    import heap as heapalgo
+    maxh = heapalgo.MaxHeap(data)
+    N = len(data)
+    while N > 0:
+        data[N-1] = maxh.deleteMax()
+        N -= 1
+    print '>>>\n{}'.format(data)
+    return data
+
 if __name__ == '__main__':
     data = [random.randrange(0, 100) for i in xrange(1, 20)]
     data0 = sorted(data)
@@ -162,9 +173,11 @@ if __name__ == '__main__':
     data4 = countSort(copy.deepcopy(data))
     data5 = shellSort(copy.deepcopy(data))
     data6 = quickSort(copy.deepcopy(data))
+    data7 = heapSort(copy.deepcopy(data))
     assert data0 == data1
     assert data0 == data2
     assert data0 == data3
     assert data0 == data4
     assert data0 == data5
     assert data0 == data6
+    assert data0 == data7

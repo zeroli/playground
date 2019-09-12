@@ -144,6 +144,9 @@ class MaxHeap(object):
         if self.n == 0: return None
         return self.data[1]
 
+    def size(self):
+        return len(self.data) - 1
+
     def __str__(self):
         from collections import deque
         if self.n == 0: return '<EMPTY>'
