@@ -141,6 +141,18 @@ def shellSort(data):
     print '>>>\n{}'.format(data)
     return data
 
+def quickSort(data):
+    print '<<quick sort>>\n{}'.format(data)
+    import selection as selectalgo
+    def _quickSort(data, l, r):
+        if r - l <= 1: return l
+        p = selectalgo.partition(data, l, r)
+        _quickSort(data, l, p)
+        _quickSort(data, p+1, r)
+    _quickSort(data, 0, len(data))
+    print '>>>\n{}'.format(data)
+    return data
+
 if __name__ == '__main__':
     data = [random.randrange(0, 100) for i in xrange(1, 20)]
     data0 = sorted(data)
@@ -149,8 +161,10 @@ if __name__ == '__main__':
     data3 = mergeSort(copy.deepcopy(data))
     data4 = countSort(copy.deepcopy(data))
     data5 = shellSort(copy.deepcopy(data))
+    data6 = quickSort(copy.deepcopy(data))
     assert data0 == data1
     assert data0 == data2
     assert data0 == data3
     assert data0 == data4
     assert data0 == data5
+    assert data0 == data6
