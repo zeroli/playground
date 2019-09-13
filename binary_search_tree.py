@@ -2,43 +2,39 @@ import os, sys
 import copy
 import random
 
-class Node(object):
-    def __init__(self, key):
-        self.left = None
-        self.right = None
-        self.parent = None
+class TreeNode(object):
+    def __init__(self, key, left=None, right=None):
         self.key = key
+        self.left = left
+        self.right = right
+        self.parent = None
+        self.height = 1
+
+    def __repr__(self):
+        return '{}({})'.format(self.key, self.height)
 
 class BSTree(object):
     def __init__(self):
         self.root = None
 
-    def insert(self, key):
-        def _insert(root, key):
-            print 'insert key {} with root {}'.format(key, root.key if root else None)
-            if not root:
-                return self.createNode(key)
-            elif key < root.key:
-                nn = _insert(root.left, key)
-                nn.parent = root
-                root.left = nn
-                return root
-            else:
-                nn = _insert(root.right, key)
-                nn.parent = root
-                root.right = nn
-                return root
-        if not self.root:
-            self.root = self.createNode(key)
+    def _insert(self, node, key):
+        if not node:
+            node = TreeNode(key)
+        elif key < node.key:
+            node.left = self._insert(node.left, key)
+            node.left.parent = node
         else:
-            _insert(self.root, key)
+            node.right = self._insert(node.right, key)
+            node.right.parent = node
+        return node
 
-    def createNode(self, key):
-        return Node(key)
+    def insert(self, key):
+        print 'insert key {}'.format(key)
+        self.root = self._insert(self.root, key)
 
+    """
     def delete2(self, key):
-        """algo comes from <introduction to algorithms>
-        """
+       #algo comes from <introduction to algorithms>
         print '>>delete2 key {}'.format(key)
         cn = self.find(key)
         if not cn:
@@ -64,46 +60,46 @@ class BSTree(object):
             y.parent.right = x
         if cn != y:
             cn.key = y.key
+    """
+    def delete(self, key):
+        print '>>delete key {}'.format(key)
+        self.root =  self._delete(self.root, key)
 
-    def delete3(self, key):
-        print '>>delete3 key {}'.format(key)
-        def _delete(key, t):
-            if not t:
-                print 'delete3: could not find key {}'.format(key)
-                return
-            if key < t.key:
-                t.left = _delete(key, t.left)
-            elif key > t.key:
-                t.right = _delete(key, t.right)
-            else: # found the key node
-                # have 2 children
-                if t.left and t.right:
-                    succ = self._successor(t)
-                    t.key = succ.key
-                    t.right = _delete(t.key, t.right)
-                else: # have 1 child or leaf node
-                    if t.left == None:
-                        t = t.right
-                    elif t.right == None:
-                        t = t.left
-            return t
-        self.root =  _delete(key, self.root)
+    def _delete(self, node, key):
+        if not node:
+            print 'delete: could not find key {}'.format(key)
+            return
+        if key < node.key:
+            node.left = self._delete(node.left, key)
+        elif key > node.key:
+            node.right = self._delete(node.right, key)
+        else: # found the key node
+            # have 2 children
+            if node.left and node.right:
+                succ = self._successor(node)
+                node.key = succ.key
+                node.right = self._delete(node.right, key)
+            else: # have 1 child or leaf node
+                if node.left == None:
+                    node = node.right
+                elif node.right == None:
+                    node = node.left
+        return node
 
     def inorder(self):
+        print '>>inorder traverse'
         if not self.root: return
-        cn = self.root
-
         def _inorder(n):
             if not n: return
             _inorder(n.left)
             print n.key,
             _inorder(n.right)
 
-        _inorder(cn)
+        _inorder(self.root)
 
     def preorder(self):
+        print '>>preorder traverse'
         if not self.root: return
-        cn = self.root
 
         def _preorder(n):
             if not n: return
@@ -111,11 +107,11 @@ class BSTree(object):
             _preorder(n.left)
             _preorder(n.right)
 
-        _preorder(cn)
+        _preorder(self.root)
 
     def postorder(self):
+        print '>>postorder traverse'
         if not self.root: return
-        cn = self.root
 
         def _postorder(n):
             if not n: return
@@ -123,21 +119,27 @@ class BSTree(object):
             _postorder(n.right)
             print n.key,
 
-        _postorder(cn)
+        _postorder(self.root)
 
     def minKey(self):
-        cn = self.root
-        while cn:
-            key = cn.key
-            cn = cn.left
-        return key
+        node = self._minNode(self.root)
+        if node: return node.key
+        else: return None
 
     def maxKey(self):
-        cn = self.root
-        while cn:
-            key = cn.key
-            cn = cn.right
-        return key
+        node = self._maxNode(self.root)
+        if node: return node.key
+        else: return None
+
+    def _minNode(self, node):
+        while node.left:
+            node = node.left
+        return node
+
+    def _maxNode(self, node):
+        while node.right:
+            node = node.right
+        return node
 
     def find(self, key):
         cn = self.root
@@ -152,60 +154,41 @@ class BSTree(object):
         print 'could not found key {}'.format(key)
         return cn
 
-    def _successor(self, x):
-        def _minNode(x):
-            while x.left:
-                x = x.left
-            return x
-        def _maxNode(x):
-            while x.right:
-                x = x.right
-            return x
-        if x.right:
-            y = _minNode(x.right)
-            return y
+    def _successor(self, node):
+        if node.right:
+            return self._minNode(node.right)
 
-        y = x.parent
-        while y and x == y.right:
-            x = y
+        y = node.parent
+        while y and node == y.right:
+            node = y
             y = y.parent
         return y
 
     def successor(self, key):
-        x = self.find(key)
-        if not x:
+        node = self.find(key)
+        if not node:
             raise 'ERROR: not found key {}'.format(key)
 
-        y = self._successor(x)
+        y = self._successor(node)
         if y: return y.key
         else: print '>>>>: no successor for key {}'.format(key)
 
-    def _predecessor(self, x):
-        def _minNode(x):
-            while x.left:
-                x = x.left
-            return x
-        def _maxNode(x):
-            while x.right:
-                x = x.right
-            return x
+    def _predecessor(self, node):
+        if node.left:
+            return self._maxNode(node.left)
 
-        if x.left:
-            y = _maxNode(x.left)
-            return y
-
-        y = x.parent
-        while y and x == y.left:
-            x = y
+        y = node.parent
+        while y and node == y.left:
+            node = y
             y = y.parent
         return y
 
     def predecessor(self, key):
-        x = self.find(key)
-        if not x:
+        node = self.find(key)
+        if not node:
             raise 'ERROR: not found key {}'.format(key)
 
-        y = self._predecessor(x)
+        y = self._predecessor(node)
         if y: return y.key
         else: print '>>>>: no predecessor for key {}'.format(key)
 
@@ -318,6 +301,7 @@ class BSTree(object):
         return _isBST(self.root, -sys.maxint-1, sys.maxint)
 
     def __str__(self):
+        if self.root == None: return '<EMPTY>'
         from collections import deque
         s = []
         q = deque()
@@ -357,15 +341,11 @@ def test():
     deletes = [random.randint(0, 30) for _ in xrange(10)]
     print 'deletes: {}'.format(deletes)
 
-    bst2 = copy.deepcopy(bst)
-    map(lambda x: bst2.delete2(x), deletes)
-    print 'after delete2: '
-    bst2.inorder()
-    print
-
     bst3 = copy.deepcopy(bst)
-    map(lambda x: bst3.delete3(x), deletes)
+    map(lambda x: bst3.delete(x), deletes)
     print 'after delete3: '
+    print '>>bstree structure:\n{}'.format(bst)
+    assert bst3.isBST() == True, 'ERROR: the tree is not binary search tree'
     bst3.inorder()
     print
 
@@ -407,9 +387,12 @@ def test():
     print 'bst structure:\n{}'.format(bst)
     print '>> test deleteMin'
     bst.deleteMin()
+    print 'bst structure:\n{}'.format(bst)
+    assert bst.isBST() == True, 'ERROR: the tree is not binary search tree'
     print '>> test deleteMax'
     bst.deleteMax()
     print 'bst structure:\n{}'.format(bst)
+    assert bst.isBST() == True, 'ERROR: the tree is not binary search tree'
     print 'bst traversal:'
     bst.inorder()
 

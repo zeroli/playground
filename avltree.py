@@ -1,18 +1,11 @@
 import os, sys, random
 
-class Node(object):
-    def __init__(self, key):
-        self.left = None
-        self.right = None
-        self.key = key
-        self.height = 1
+import binary_search_tree
+from binary_search_tree import *
 
-    def __repr__(self):
-        return '{}({})'.format(self.key, self.height)
-
-class AVLTree(object):
+class AVLTree(BSTree):
     def __init__(self):
-        self.root = None
+        super(AVLTree, self).__init__()
 
     def _getbalance(self, node):
         """return height(left) - height(right)"""
@@ -21,13 +14,7 @@ class AVLTree(object):
 
     def insert(self, key):
         def _insert(node, key):
-            if node == None:
-                node = self.createNode(key)
-            else:
-                if key < node.key:
-                    node.left = _insert(node.left, key)
-                elif key > node.key:
-                    node.right = _insert(node.right, key)
+            node = super(AVLTree, self)._insert(node, key)
             #rebalance
             self._update_height(node)
             balance = self._getbalance(node)
@@ -72,9 +59,6 @@ class AVLTree(object):
         k3.right = self._left_left_rotate(k3.right)
         return self._right_right_rotate(k3)
 
-    def createNode(self, key):
-        return Node(key)
-
     def _update_height(self, n):
         if not n: return
         n.height = 1 + max(self._height(n.left), self._height(n.right))
@@ -84,31 +68,8 @@ class AVLTree(object):
         return n.height
 
     def delete(self, key):
-        def _findMinKey(n):
-            while n:
-                if not n.left: return n
-                n = n.left
-            return None
-
         def _delete(t, key):
-            if not t:
-                print 'AVL delete: could not find key {}'.format(key)
-                return
-            if key < t.key:
-                t.left = _delete(t.left, key)
-            elif key > t.key:
-                t.right = _delete(t.right, key)
-            else: # found the key node
-                # have 2 children
-                if t.left and t.right:
-                    succ = _findMinKey(t.right)
-                    t.key = succ.key
-                    t.right = _delete(t.right, t.key)
-                else: # have 1 child or leaf node
-                    if t.left == None:
-                        t = t.right
-                    elif t.right == None:
-                        t = t.left
+            t = super(AVLTree, self)._delete(t, key)
             # rebalance node t up to root
             self._update_height(t)
             balance = self._getbalance(t)
@@ -142,93 +103,9 @@ class AVLTree(object):
 
         return _verify(cn)
 
-    def inorder(self):
-        if not self.root: return
-        cn = self.root
-
-        def _inorder(n):
-            if not n: return
-            _inorder(n.left)
-            print n.key,
-            _inorder(n.right)
-
-        _inorder(cn)
-
-    def preorder(self):
-        if not self.root: return
-        cn = self.root
-
-        def _preorder(n):
-            if not n: return
-            print n.key,
-            _preorder(n.left)
-            _preorder(n.right)
-
-        _preorder(cn)
-
-    def postorder(self):
-        if not self.root: return
-        cn = self.root
-
-        def _postorder(n):
-            if not n: return
-            _postorder(n.left)
-            _postorder(n.right)
-            print n.key,
-
-        _postorder(cn)
-
-    def minKey(self):
-        cn = self.root
-        while cn:
-            key = cn.key
-            cn = cn.left
-        return key
-
-    def maxKey(self):
-        cn = self.root
-        while cn:
-            key = cn.key
-            cn = cn.right
-        return key
-
-    def find(self, key):
-        cn = self.root
-        while cn:
-            if key == cn.key:
-                print 'found key {}'.format(key)
-                return cn
-            elif key < cn.key:
-                cn = cn.left
-            else:
-                cn = cn.right
-        print 'could not found key {}'.format(key)
-        return cn
-
-    def __str__(self):
-        from collections import deque
-        s = []
-        q = deque()
-        q.append(self.root)
-        q.append(None) # special element to identify level ending
-        ilevel = 0
-        levelstr = []
-        while len(q):
-            node = q.popleft()
-            if node:
-                levelstr.append(str(node.key))
-                if node.left: q.append(node.left)
-                if node.right: q.append(node.right)
-            else:
-                s.append('L{}: {}'.format(ilevel, ' '.join(levelstr)))
-                ilevel += 1
-                levelstr = []
-                if len(q): q.append(None)
-        return '\n'.join(s)
-
 if __name__ == '__main__':
     lst = [random.randint(0, 100) for i in xrange(50)]
-    lst = [74, 20, 45, 68, 98, 95, 86, 71, 51, 2, 55, 23, 37, 90, 76, 33, 74, 65, 45, 65, 37, 70, 38, 4, 40, 82, 25, 74, 2, 9, 27, 2, 31, 68, 40, 72, 51, 78, 100, 25, 31, 13, 2, 81, 82, 80, 14, 72, 70, 48]
+    #lst = [74, 20, 45, 68, 98, 95, 86, 71, 51, 2, 55, 23, 37, 90, 76, 33, 74, 65, 45, 65, 37, 70, 38, 4, 40, 82, 25, 74, 2, 9, 27, 2, 31, 68, 40, 72, 51, 78, 100, 25, 31, 13, 2, 81, 82, 80, 14, 72, 70, 48]
     print '>>random list: {}'.format(lst)
     avlt = AVLTree()
     map(lambda x: avlt.insert(x), lst)
@@ -244,7 +121,7 @@ if __name__ == '__main__':
 
     print '>> test delete'
     deletes = [random.randint(0, 30) for i in xrange(10)]
-    deletes = [23, 3, 16, 24, 22, 15, 28, 25, 18, 20]
+    #deletes = [23, 3, 16, 24, 22, 15, 28, 25, 18, 20]
     print 'deletes: {}'.format(deletes)
     map(lambda x: avlt.delete(x), deletes)
     print 'after bunch of deletes: '
