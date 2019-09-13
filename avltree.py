@@ -2,7 +2,6 @@ import os, sys, random
 
 class Node(object):
     def __init__(self, key):
-        self.parent = None
         self.left = None
         self.right = None
         self.key = key
@@ -15,29 +14,34 @@ class AVLTree(object):
     def __init__(self):
         self.root = None
 
+    def _getbalance(self, node):
+        """return height(left) - height(right)"""
+        if node == None: return 0
+        return self._height(node.left) - self._height(node.right)
+
     def insert(self, key):
         def _insert(node, key):
             if node == None:
                 node = self.createNode(key)
             else:
                 if key < node.key:
-                    node.left = nn = _insert(node.left, key)
-                    nn.parent = node
-                    if self._height(node.left) - self._height(node.right) > 1:
-                        if key < node.left.key:
-                            node = self._left_left_rotate(node)
-                        else:
-                            node = self._left_right_rotate(node)
+                    node.left = _insert(node.left, key)
                 elif key > node.key:
-                    node.right = nn = _insert(node.right, key)
-                    nn.parent = node
-                    if self._height(node.right) - self._height(node.left) > 1:
-                        if key > node.right.key:
-                            node = self._right_right_rotate(node)
-                        else:
-                            node = self._right_left_rotate(node)
-
+                    node.right = _insert(node.right, key)
+            #rebalance
             self._update_height(node)
+            balance = self._getbalance(node)
+            if balance > 1:
+                if self._getbalance(node.left) >= 0:
+                    node = self._left_left_rotate(node)
+                else:
+                    node = self._left_right_rotate(node)
+            elif balance < -1:
+                if self._getbalance(node.right) <= 0:
+                    node = self._right_right_rotate(node)
+                else:
+                    node = self._right_left_rotate(node)
+
             return node
 
         print '>>insert {}'.format(key)
@@ -51,7 +55,7 @@ class AVLTree(object):
         self._update_height(k2)
         self._update_height(k1)
         return k1
-    
+
     def _right_right_rotate(self, k2):
         k1 = k2.right
         k2.right = k1.left
@@ -71,127 +75,13 @@ class AVLTree(object):
     def createNode(self, key):
         return Node(key)
 
-    def _higher_child(self, n):
-        left_h = self._height(n.left)
-        right_h = self._height(n.right)
-        return n.left if left_h >= right_h else n.right
-
     def _update_height(self, n):
         if not n: return
-        cn = self._higher_child(n)
-        n.height = 1 + self._height(cn)
+        n.height = 1 + max(self._height(n.left), self._height(n.right))
 
     def _height(self, n):
         if not n: return 0
         return n.height
-
-    def _rebalance(self, nn):
-        """keep in-order position"""
-        if nn == None: return self.root
-
-        def _higher_child(n):
-            left_h = self._height(n.left)
-            right_h = self._height(n.right)
-            return n.left if left_h >= right_h else n.right
-
-        def _update_height(n):
-            if not n: return
-            cn = _higher_child(n)
-            n.height = 1 + self._height(cn)
-
-        def _restructure(x, y, z):
-            """do trinode restructure, input z is parent of y, which is parent of x
-            return new root node
-            """
-            def _left_left_rotate(x, y, z):
-                """do single right rotation
-                        z                       y
-                      /                      /   \
-                    y          =>          x      z
-                  /   \                          /
-                x       K                       K
-                """
-                p = z.parent
-                y.parent = p
-                if p:
-                    if p.left == z: p.left = y
-                    else: p.right = y
-
-                K = y.right
-                y.right = z
-                z.parent = y
-                z.left = K
-                if K: K.parent = z
-
-                #post-order to update height (in order)
-                _update_height(x)
-                _update_height(z)
-                _update_height(y)
-                return y
-
-            def _right_right_rotate(x, y, z):
-                """do single left rotation
-                z                           y
-                  \                      /   \
-                    y          =>      z      x
-                 /   \                  \
-                K       x                 K
-                """
-                p = z.parent
-                y.parent = p
-                if p:
-                    if p.left == z: p.left = y
-                    else: p.right = y
-
-                K = y.left
-                y.left = z
-                z.parent = y
-                z.right = K
-                if K: K.parent = z
-
-                #post-order to update height (in order)
-                _update_height(z)
-                _update_height(x)
-                _update_height(y)
-                return y
-
-            def _left_right_rotate(x, y, z):
-                """do single right rotation, and then single left rotation"""
-                r = _right_right_rotate(x.right, x, y)
-                return _left_left_rotate(y, r, z)
-
-            def _right_left_rotate(x, y, z):
-                """do single left rotation, and then single right rotation"""
-                r = _left_left_rotate(x.left, x, y)
-                return _right_right_rotate(y, r, z)
-
-            if z.left == y and y.left == x:
-                print '<left-left>'
-                return _left_left_rotate(x, y, z)
-            if z.left == y and y.right == x:
-                print '<left-right>'
-                return _left_right_rotate(x, y, z)
-            if z.right == y and y.left == x:
-                print '<right-left>'
-                return _right_left_rotate(x, y, z)
-            if z.right == y and y.right == x:
-                print '<right-right>'
-                return _right_right_rotate(x, y, z)
-
-        cn = nn
-        while cn:
-            print cn,
-            if abs(self._height(cn.left) - self._height(cn.right)) > 1:
-                z = cn
-                y = _higher_child(z)
-                x = _higher_child(y)
-                cn = _restructure(x, y, z)
-            _update_height(cn)
-            print cn,
-            nn = cn
-            cn = cn.parent
-        print
-        return nn
 
     def delete(self, key):
         def _findMinKey(n):
@@ -206,34 +96,33 @@ class AVLTree(object):
                 return
             if key < t.key:
                 t.left = _delete(t.left, key)
-                if self._height(t.right) - self._height(t.left) > 1:
-                    if t.right.right:
-                        t = self._right_right_rotate(t)
-                    else:
-                        t = self._right_left_rotate(t)
             elif key > t.key:
                 t.right = _delete(t.right, key)
-                if self._height(t.left) - self._height(t.right) > 1:
-                    if t.left.left:
-                        t = self._left_left_rotate(t)
-                    else:
-                        t = self._left_right_rotate(t)
             else: # found the key node
                 # have 2 children
                 if t.left and t.right:
                     succ = _findMinKey(t.right)
                     t.key = succ.key
                     t.right = _delete(t.right, t.key)
-                    if self._height(t.left) - self._height(t.right) > 1:
-                        if t.left.left:
-                            t = self._left_left_rotate(t)
-                        else:
-                            t = self._left_right_rotate(t)
                 else: # have 1 child or leaf node
                     if t.left == None:
                         t = t.right
                     elif t.right == None:
                         t = t.left
+            # rebalance node t up to root
+            self._update_height(t)
+            balance = self._getbalance(t)
+            if balance > 1:
+                if self._getbalance(t.left) >= 0:
+                    t = self._left_left_rotate(t)
+                else:
+                    t = self._left_right_rotate(t)
+            elif balance < -1:
+                if self._getbalance(t.right) <= 0:
+                    t = self._right_right_rotate(t)
+                else:
+                    t = self._right_left_rotate(t)
+
             return t
         print '>>delete key {}'.format(key)
         self.root =  _delete(self.root, key)
