@@ -16,33 +16,70 @@ class AVLTree(object):
         self.root = None
 
     def insert(self, key):
-        def _insert(key):
-            nn = self.createNode(key)
-            if not self.root:
-                self.root = nn
+        def _insert(node, key):
+            if node == None:
+                node = self.createNode(key)
             else:
-                cn = self.root
-                while cn:
-                    if key <= cn.key:
-                        if cn.left is None:
-                            nn.parent = cn
-                            cn.left = nn
-                            break
-                        else: cn = cn.left
-                    else:
-                        if cn.right is None:
-                            nn.parent = cn
-                            cn.right = nn
-                            break
-                        else: cn = cn.right
-            return nn
-        nn = _insert(key) # nn is newly inserted node
-        if nn.parent:
-            self.root = self._rebalance(nn.parent)
+                if key < node.key:
+                    node.left = nn = _insert(node.left, key)
+                    nn.parent = node
+                    if self._height(node.left) - self._height(node.right) > 1:
+                        if key < node.left.key:
+                            node = self._left_left_rotate(node)
+                        else:
+                            node = self._left_right_rotate(node)
+                elif key > node.key:
+                    node.right = nn = _insert(node.right, key)
+                    nn.parent = node
+                    if self._height(node.right) - self._height(node.left) > 1:
+                        if key > node.right.key:
+                            node = self._right_right_rotate(node)
+                        else:
+                            node = self._right_left_rotate(node)
+
+            self._update_height(node)
+            return node
+
+        print '>>insert {}'.format(key)
+        self.root = _insert(self.root, key)
         print self
+
+    def _left_left_rotate(self, k2):
+        k1 = k2.left
+        k2.left = k1.right
+        k1.right = k2
+        self._update_height(k2)
+        self._update_height(k1)
+        return k1
+    
+    def _right_right_rotate(self, k2):
+        k1 = k2.right
+        k2.right = k1.left
+        k1.left = k2
+        self._update_height(k2)
+        self._update_height(k1)
+        return k1
+
+    def _left_right_rotate(self, k3):
+        k3.left = self._right_right_rotate(k3.left)
+        return self._left_left_rotate(k3)
+
+    def _right_left_rotate(self, k3):
+        k3.right = self._left_left_rotate(k3.right)
+        return self._right_right_rotate(k3)
 
     def createNode(self, key):
         return Node(key)
+
+    def _higher_child(self, n):
+        left_h = self._height(n.left)
+        right_h = self._height(n.right)
+        return n.left if left_h >= right_h else n.right
+
+    def _update_height(self, n):
+        if not n: return
+        cn = self._higher_child(n)
+        n.height = 1 + self._height(cn)
 
     def _height(self, n):
         if not n: return 0
@@ -157,49 +194,49 @@ class AVLTree(object):
         return nn
 
     def delete(self, key):
-        cn = self.find(key)
-        if not cn:
-            print 'delete: could not find key {}'.format(key)
-            return
-
         def _findMinKey(n):
             while n:
                 if not n.left: return n
                 n = n.left
             return None
-        def _findMaxKey(n):
-            while n:
-                if not n.right: return n
-                n = n.right
-            return None
 
-        def _replaceNode(n, newn=None):
-            parent = n.parent
-            if parent:
-                if parent.left == n:
-                    parent.left = newn
-                if parent.right == n:
-                    parent.right = newn
-            if newn:
-                newn.parent = parent
-            return newn
-
-        def _deleteNode(n):
-            if n.left and n.right:
-                rn = _findMinKey(n.right)
-                assert rn
-                n.key = rn.key
-                return _deleteNode(rn)
-            elif n.left:
-                newn = _replaceNode(n, n.left)
-                return self._rebalance(newn.parent)
-            elif n.right:
-                newn = _replaceNode(n, n.right)
-                return self._rebalance(newn.parent)
-            else:
-                _replaceNode(n)
-                return self._rebalance(n.parent)
-        self.root = _deleteNode(cn)
+        def _delete(t, key):
+            if not t:
+                print 'AVL delete: could not find key {}'.format(key)
+                return
+            if key < t.key:
+                t.left = _delete(t.left, key)
+                if self._height(t.right) - self._height(t.left) > 1:
+                    if t.right.right:
+                        t = self._right_right_rotate(t)
+                    else:
+                        t = self._right_left_rotate(t)
+            elif key > t.key:
+                t.right = _delete(t.right, key)
+                if self._height(t.left) - self._height(t.right) > 1:
+                    if t.left.left:
+                        t = self._left_left_rotate(t)
+                    else:
+                        t = self._left_right_rotate(t)
+            else: # found the key node
+                # have 2 children
+                if t.left and t.right:
+                    succ = _findMinKey(t.right)
+                    t.key = succ.key
+                    t.right = _delete(t.right, t.key)
+                    if self._height(t.left) - self._height(t.right) > 1:
+                        if t.left.left:
+                            t = self._left_left_rotate(t)
+                        else:
+                            t = self._left_right_rotate(t)
+                else: # have 1 child or leaf node
+                    if t.left == None:
+                        t = t.right
+                    elif t.right == None:
+                        t = t.left
+            return t
+        print '>>delete key {}'.format(key)
+        self.root =  _delete(self.root, key)
         print self
         assert self.verify()
 
@@ -301,8 +338,8 @@ class AVLTree(object):
         return '\n'.join(s)
 
 if __name__ == '__main__':
-    lst = [random.randint(0, 30) for i in xrange(10)]
-    lst = [8, 7, 28, 18, 23, 14, 4, 18, 18, 8]
+    lst = [random.randint(0, 100) for i in xrange(50)]
+    lst = [74, 20, 45, 68, 98, 95, 86, 71, 51, 2, 55, 23, 37, 90, 76, 33, 74, 65, 45, 65, 37, 70, 38, 4, 40, 82, 25, 74, 2, 9, 27, 2, 31, 68, 40, 72, 51, 78, 100, 25, 31, 13, 2, 81, 82, 80, 14, 72, 70, 48]
     print '>>random list: {}'.format(lst)
     avlt = AVLTree()
     map(lambda x: avlt.insert(x), lst)
@@ -318,7 +355,7 @@ if __name__ == '__main__':
 
     print '>> test delete'
     deletes = [random.randint(0, 30) for i in xrange(10)]
-    deletes = [8, 18]
+    deletes = [23, 3, 16, 24, 22, 15, 28, 25, 18, 20]
     print 'deletes: {}'.format(deletes)
     map(lambda x: avlt.delete(x), deletes)
     print 'after bunch of deletes: '
