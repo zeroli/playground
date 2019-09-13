@@ -141,7 +141,6 @@ class AVLTree(object):
                 print '<right-right>'
                 return _right_right_rotate(x, y, z)
 
-        _update_height(nn)
         cn = nn
         while cn:
             print cn,
