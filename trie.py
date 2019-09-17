@@ -6,6 +6,9 @@ import copy
 
 R = 256
 
+"""each node contains R links to childrens, which take excessive spaces
+we will address this issue in ternary search trie structure
+"""
 class TrieNode(object):
     def __init__(self):
         self.next = [None] * R
