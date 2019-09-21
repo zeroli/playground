@@ -23,11 +23,11 @@ For the purpose of this problem, assume that your function returns 0 when the re
 class Solution {
 public:
     int reverse(int x) {
-        long y = 0;
+        long y = 0; // use long to avoid overflow in computation
         bool negative = false;
         if (x < 0) {
             negative = true;
-            if (x == INT_MIN) return 0;
+            if (x == INT_MIN) return 0; // handle -2147483648
             x = -x;
         }
         while (x) {
