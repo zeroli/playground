@@ -98,6 +98,21 @@ class BinaryTree(object):
             p = s2.pop()
             print p,
 
+    # use double push for one stack
+    def postorder_iter3(self):
+        s = []
+        s.append(self.root)
+        s.append(self.root)
+        while len(s):
+            p = s.pop()
+            if len(s) and s[-1] == p:
+                if p.right:
+                    s.append(p.right)
+                if p.left:
+                    s.append(p.left)
+            else:
+                print p,
+
     def inorder(self):
         def _inorder(root):
             if root == None: return
