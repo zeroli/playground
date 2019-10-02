@@ -78,7 +78,7 @@ class BSTree(object):
             if node.left and node.right:
                 succ = self._successor(node)
                 node.key = succ.key
-                node.right = self._delete(node.right, key)
+                node.right = self._delete(node.right, succ.key)
             else: # have 1 child or leaf node
                 if node.left == None:
                     node = node.right

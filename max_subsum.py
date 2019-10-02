@@ -77,6 +77,7 @@ def maxsubsum_divide_conque(data):
 
 """runtime improved to O(n)"""
 def maxsubsum_linear(data):
+    """this solution could not handle all negative numbers well"""
     maxsum = 0
     maxrange = [-1, -1]
     subrange = -1
