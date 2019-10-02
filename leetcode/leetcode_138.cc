@@ -51,4 +51,48 @@ public:
         copy_node->random = copyRandomList(head->random);
         return copy_node;
     }
+
+    // solution doesnot use extra space O(n)
+    Node* copyRandomList(Node* head) {
+        copyNodes(head);
+        setupRandomLink(head);
+        return splitNewList(head);
+    }
+private:
+    void copyNodes(Node* head) {
+        Node* p = head;
+        while (p) {
+            Node* np = new Node(p->val);
+            // insert np after this p
+            np->next = p->next;
+            p->next = np;
+            p = np->next;
+        }
+    }
+    void setupRandomLink(Node* head) {
+        Node* p = head;
+        while (p) {
+            if (p->random) {
+                Node* np = p->next;
+                np->random = p->random->next;
+            }
+        }
+    }
+    Node* splitNewList(Node* head) {
+        // copy nodes at even position
+        Node* nhead = head->next;
+        head->next = 0;
+        Node* p = nhead->next;
+        Node** ptail = &(head->next);
+        Node** pntail = &(nhead->next);
+        while (p) {
+            *ptail = p;
+            ptail = &(p->next);
+            *pntail = p->next;
+            p = p->next;
+            pntail = &(p->next);
+            p = p->next;
+        }
+        return nhead;
+    }
 };
