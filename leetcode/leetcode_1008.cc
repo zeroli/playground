@@ -32,6 +32,18 @@ The values of preorder are distinct.
  */
 class Solution {
 public:
+    int i = 0;
+    TreeNode* bstFromPreorder(vector<int>& A) {
+        return bstFromPreorder(A, INT_MAX);
+    }
+    TreeNode* bstFromPreorder(vector<int>& A, int bound) {
+        if (i == A.size() || A[i] > bound) return NULL;
+        TreeNode* root = new TreeNode(A[i++]);
+        root->left = bstFromPreorder(A, root->val);
+        root->right = bstFromPreorder(A, bound);
+        return root;
+    }
+
     TreeNode* bstFromPreorder(vector<int>& preorder) {
         return bstFromPreorder(preorder, 0, (int)preorder.size()-1);
     }
