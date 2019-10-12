@@ -47,6 +47,14 @@ The value of each node will only be 0 or 1.
 class Solution {
 public:
     TreeNode* pruneTree(TreeNode* root) {
+        if (not root) return root;
 
+        root->left = pruneTree(root->left);
+        root->right = pruneTree(root->right);
+        if (not root->left and not root->right and root->val == 0) {
+            return NULL;
+        } else {
+            return root;
+        }
     }
 };
