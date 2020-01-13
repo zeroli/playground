@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <type_traits>
+#include <functional>
 
 using namespace std;
 
@@ -45,7 +46,7 @@ int main()
 	std::cerr << "i=" << i << ", d=" << d << "\n";
 
 	//decltype((i)) d2; // error: type of d1 is int&, need to be initialized
-	if (not i > 0) {
+	if (not (i > 0)) {
 		std::cerr << "i<=0\n";
 	}
 
@@ -85,6 +86,8 @@ int main()
 	}
 
 	// lambda expression
+	// format as below:
+	// [capture] (params) opt -> return type { body; };
 	// lambda is just like functor, capture will be like functor class's member data
 	// its function {} is like operator (...) const function
 	// lambda mutable is make its member data to be 'mutable' attribute
@@ -123,6 +126,30 @@ int main()
 		auto const_param_lambda = [&](int v) { v = 5; };
 		const_param_lambda(val);
 		std::cerr << "val = " << val << "\n"; // 4
+
+		class TestLambda {
+		public:
+			int i_ = 0;
+			void func(int x, int y) {
+				//auto x1 = [] { return i_; } // error, no capturing
+				auto x2 = [=] { return i_ + x + y; }; // OK, capture all enclosing scopes
+				auto x3 = [&] { return i_ + x + y; }; // OK, capture all enclosing scopes with reference
+				auto x4 = [this] { return i_; }; // OK, capture this pointer
+				//auto x5 = [this] { return i_ + x + y; }; // error, no x/y capture
+				auto x6 = [this, x, y] { return i_ + x + y; }; // OK, capture this, x, y
+				auto x7 = [this] { return i_++; }; // OK, capture this pointer, and modify its member
+				auto x8 = [=] { return i_++; }; // OK, capture this pointer, and modify its member
+
+				x2();
+				x3();
+				x4();
+				x6();
+				x7();
+				x8();
+				std::cerr << "test lambda: " << i_ << std::endl;
+			}
+		};
+		TestLambda().func(1, 1);
 	}
 	// alignof and alignas
 	{
@@ -156,6 +183,69 @@ int main()
 		std::cerr << alignof(StrictAligned) << std::endl;
 		//std::cerr << alignof(*pia) << std::endl; // cannot compile on VS
 		//std::cerr << alignof(sa) << std::endl;  // cannot compile on VS
+	}
+	// functor object
+	{
+		auto func = [](void) {}; // lambda function, local defined
+		struct Foo { void operator()(void) { } }; // functor object
+		struct Bar {
+			using fr_t = void(*)(void);
+			static void func(void) { }
+			operator fr_t(void) { return func; }
+		};
+		struct Aar {
+			int a_;
+			void mem_func(void) { }
+		};
+
+		void(*func_ptr)(void) = func;
+		func_ptr();
+
+		Foo foo;
+		foo();
+
+		Bar bar;
+		bar();
+
+		void (Aar::*mem_func_ptr)(void) = &Aar::mem_func;
+		int Aar::*mem_obj_ptr = &Aar::a_;
+
+		Aar aa;
+		(aa.*mem_func_ptr)();
+		aa.*mem_obj_ptr = 123;
+	}
+	// std::function / std::bind
+	{
+		// lambda function is just like one functor with operator () function
+		// it could be converted to std::function with same signature
+		// and also it could be bind to form another function, or with some real arguments
+		std::function<int(int)> f1 = [](int a) { return a; };
+		std::function<int(void)> f2 = std::bind([](int a) { return a; }, 123);
+
+		// any lambda with no any capture could e converted to function pointer with same signature
+		// that's because functor object which lambda represented internally will drop its 'this' in conversion
+		using func_t = int(*)(int);
+		func_t f = [](int a) { return a; };
+		f(123);
+	}
+	// std::tuple
+	{
+		char buf[10];
+		std::tuple<const char*, int> tp = std::make_tuple(buf, sizeof buf);
+		int x = 1, y = 2;
+		auto tp1 = std::tie(x, "aa", y);
+		auto print_tuple = [](const std::tuple<int, const char*, int>& t) {
+			std::cerr << "("
+				<< std::get<0>(t) << ","
+				<< std::get<1>(t) << ","
+				<< std::get<2>(t) << ")";
+		};
+		print_tuple(tp1);
+		std::tuple<int, std::string, float> t1(10, "Test", 3.14f);
+		int n = 7;
+		auto t2 = std::tuple_cat(t1, std::make_pair("Foo", "bar"), t1, std::tie(n));
+		n = 10;
+		// n will printed as 10, sinc std::tie will bind reference &
 	}
 	return 0;
 }
