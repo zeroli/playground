@@ -61,6 +61,27 @@ int main()
 		const auto* m = &x, n = 1;
 		//*m = 20; // type(m) = const int*
 		//n = 2; // type(n) = const int
+
+		auto* a = &x; // type(a) = int*, auto => int
+		auto  b = &x; // type(b) = int*, auto => int*
+		auto& c = x;  // type(c) = int&, auto => int
+		auto  d = c;   // type(d) = int, auto => int
+		// rule#1: without pointer/reference, 
+		// expression with reference(only, no pointer) and cv modifier
+		// will be discarded, when deducing auto
+		// so d will be deduced as int, instead of int&, even though c is type of int&
+
+		const auto e = x;  // type(e) = const int, auto => int
+		auto f = e;  // type(f) = int, auto => int
+		// so f will be deduced as int, instead of const int, even though e if type of const int
+		// according to rule#1
+
+		// rule#2: with pointer/reference,
+		// expression with cv modifier will be kept
+		const auto& g = x;  // type(g) = const int&, auto => int
+		auto& h = g; // type(h) = cons int&, auto => const int
+		// if we have to keep deduced expression type, we have to use pointer or reference
+		// like h above		
 	}
 
 	// lambda expression
@@ -134,7 +155,7 @@ int main()
 		std::cerr << alignof(IntAligned) << std::endl;
 		std::cerr << alignof(StrictAligned) << std::endl;
 		//std::cerr << alignof(*pia) << std::endl; // cannot compile on VS
-		std::cerr << alignof(sa) << std::endl;
+		//std::cerr << alignof(sa) << std::endl;  // cannot compile on VS
 	}
 	return 0;
 }
