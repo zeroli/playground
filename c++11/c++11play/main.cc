@@ -4,6 +4,8 @@
 #include <string>
 #include <type_traits>
 #include <functional>
+#include <unordered_map>
+#include <bitset>
 
 using namespace std;
 
@@ -246,6 +248,44 @@ int main()
 		auto t2 = std::tuple_cat(t1, std::make_pair("Foo", "bar"), t1, std::tie(n));
 		n = 10;
 		// n will printed as 10, sinc std::tie will bind reference &
+	}
+	// std::unordered_map
+	{
+		struct Key {
+			std::string first;
+			std::string second;
+		};
+		struct KeyHash {
+			std::size_t operator() (const Key& k) const {
+				return std::hash<std::string>()(k.first) ^ (std::hash<std::string>()(k.second) << 1);
+			}
+		};
+		struct KeyEqual {
+			bool operator()(const Key& lhs, const Key& rhs) const {
+				return lhs.first == rhs.first && lhs.second == rhs.second;
+			}
+		};
+		// default ctor 
+		std::unordered_map<std::string, std::string> m1;
+		// list ctor
+		std::unordered_map<int, std::string> m2 = {
+			{ 1, "foo"},
+			{ 3, "bar"},
+			{2, "baz"},
+		};
+		// copy ctor
+		std::unordered_map<int, std::string> m3 = m2;
+		// move ctor
+		std::unordered_map<int, std::string> m4 = std::move(m2);
+		// range ctor
+		std::vector<std::pair<std::bitset<8>, int>> v = { { 0x12, 1 } };
+		std::unordered_map<std::bitset<8>, double> m5(v.begin(), v.end());
+
+		// ctor for a custom type
+		std::unordered_map<Key, std::string, KeyHash, KeyEqual> m6 = {
+			{ { "John", "Doe" }, "example"},
+			{ { "Mary", "Sue" }, "another"},
+		};
 	}
 	return 0;
 }
