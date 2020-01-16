@@ -6,6 +6,11 @@
 #include <functional>
 #include <unordered_map>
 #include <bitset>
+#include <typeinfo>
+#ifndef _MSC_VER
+#   include <cxxabi.h>
+#endif
+#include <memory>
 
 using namespace std;
 
@@ -39,6 +44,34 @@ public:
 	alignas(T) char data[1024] = { 0 };
 	// int length = 1024 / sizeof(T)
 };
+
+template <class T>
+std::string type_name()
+{
+	typedef typename std::remove_reference<T>::type TR;
+	std::unique_ptr<char, void(*)(void*)> own
+	(
+#ifndef _MSC_VER
+		abi::__cxa_demangle(typeid(TR).name(), nullptr,
+			nullptr, nullptr),
+#else
+		nullptr,
+#endif
+		std::free
+	);
+	std::string r = own != nullptr ? own.get() : typeid(TR).name();
+	if (std::is_const<TR>::value)
+		r += " const";
+	if (std::is_volatile<TR>::value)
+		r += " volatile";
+	if (std::is_lvalue_reference<T>::value)
+		r += "&";
+	else if (std::is_rvalue_reference<T>::value)
+		r += "&&";
+	return r;
+}
+
+#define print_typename(x) { std::cerr << "type of '" #x "' is " << type_name<x>() << std::endl; }
 
 int main()
 {
@@ -85,6 +118,88 @@ int main()
 		auto& h = g; // type(h) = cons int&, auto => const int
 		// if we have to keep deduced expression type, we have to use pointer or reference
 		// like h above		
+	}
+	
+	// decltype deduction
+	{
+		int x = 1;
+		const int x1 = x;
+		const int& x2 = x;
+		{ decltype(x) _x = x; print_typename(decltype(x)); } // int
+		{ const decltype(x) _x = x; print_typename(const decltype(x)); } // const int
+		{ const decltype(x)& _x = x; print_typename(const decltype(x)&); } // const int&
+
+		{ decltype(x1) _x1 = x1; print_typename(decltype(x1)); } // const int
+		{ const decltype(x1) _x1 = x1; print_typename(const decltype(x1)); } // const int
+		{ const decltype(x1)& _x1 = x1; print_typename(const decltype(x1)&); } // const int&
+
+		{ decltype(x2) _x2 = x2; print_typename(decltype(x2)); } // const int&
+		{ const decltype(x2) _x2 = x2; print_typename(const decltype(x2)); } // const int&
+		{ const decltype(x2)& _x2 = x2; print_typename(const decltype(x2)&); } // const int&
+
+		struct Foo { int x = 0; };
+		Foo foo;
+		const Foo foo1 = foo;
+		const Foo& foo2 = foo;
+		{ decltype(foo.x) _foo = foo.x; print_typename(decltype(foo.x)); } // int
+		{ decltype(foo) _foo = foo; print_typename(decltype(foo)); } // Foo
+		{ const decltype(foo) _foo = foo; print_typename(const decltype(foo)); } // const Foo
+		{ const decltype(foo)& _foo = foo; print_typename(const decltype(foo)&); } // const Foo&
+
+		{ decltype(foo1) _foo1 = foo1; print_typename(decltype(foo1)); } // const Foo
+		{ decltype(foo2) _foo2 = foo2; print_typename(decltype(foo2)); } // const Foo&
+
+		std::vector<Foo> foos = { Foo() };
+		// this one will deduce to be "Foo&", because foos[0] is left reference
+		{ decltype(foos[0]) _foo = foos[0]; print_typename(decltype(foos[0])); } // Foo&
+		// below two will deduce to be STILL "Foo&"
+		{ const decltype(foos[0]) _foo = foos[0]; print_typename(const decltype(foos[0])); } // Foo&
+		{ const decltype(foos[0])& _foo = foos[0]; print_typename(const decltype(foos[0])&); } // Foo&
+
+		const Foo& foo3 = foos[0];
+		// below 3 will be all type of "const Foo&"
+		{ decltype(foo3) _foo = foo3; print_typename(decltype(foo3)); } // const Foo&
+		{ const decltype(foo3) _foo = foo3; print_typename(const decltype(foo3)); } // const Foo&
+		{ const decltype(foo3)& _foo = foo3; print_typename(const decltype(foo3)&); } // const Foo&
+
+		Foo& foo4 = foos[0];
+		// below 3 will be all type of "Foo&"
+		{ decltype(foo4) _foo = foo4; print_typename(decltype(foo4)); } // Foo&
+		{ const decltype(foo4) _foo = foo4; print_typename(const decltype(foo4)); } // Foo&
+		{ const decltype(foo4)& _foo = foo4; print_typename(const decltype(foo4)&); } // Foo&
+
+		const std::vector<Foo> foos1 = foos;
+		// below 3 will deduce to be "const Foo&"
+		{ decltype(foos1[0]) _foo = foos1[0]; print_typename(decltype(foos1[0])); } // const Foo&
+		{ const decltype(foos1[0]) _foo = foos1[0]; print_typename(const decltype(foos1[0])); } // const Foo&
+		{ const decltype(foos1[0])& _foo = foos1[0]; print_typename(const decltype(foos1[0])&); } // const Foo&
+
+		const std::vector<Foo>& foos2 = foos;
+		// below 3 will deduce to be "const Foo&"
+		{ decltype(foos2[0]) _foo = foos2[0]; print_typename(decltype(foos2[0])); } // const Foo&
+		{ const decltype(foos2[0]) _foo = foos2[0]; print_typename(const decltype(foos2[0])); } // const Foo&
+		{ const decltype(foos2[0])& _foo = foos2[0]; print_typename(const decltype(foos2[0])&); } // const Foo&
+
+		const std::vector<Foo>* foos3 = &foos;
+		// below 3 will deduce to be "const Foo&"
+		{ decltype((*foos3)[0]) _foo = (*foos3)[0]; print_typename(decltype((*foos3)[0])); } // const Foo&
+		{ const decltype((*foos3)[0]) _foo = (*foos3)[0]; print_typename(const decltype((*foos3)[0])); } // const Foo&
+		{ const decltype((*foos3)[0])& _foo = (*foos3)[0]; print_typename(const decltype((*foos3)[0])&); } // const Foo&
+
+		struct Buffer {
+			int* pix = new int[1];
+		};
+		std::map<int, Buffer*> m = { {1, new Buffer} };
+		const Buffer* buf = m[1];
+		// below will deduce to 'int&', since buf->pix[0] is left reference
+		{ decltype(buf->pix[0]) pix = buf->pix[0]; print_typename(decltype(buf->pix[0])); } // int&
+		buf->pix[0] = 10; // WORK, since it's reference
+
+		const int* bufs = new int[1];
+		// below will deduce to 'const int&', since bufs[0] is const int&
+		{ decltype(bufs[0]) pix = bufs[0]; print_typename(decltype(bufs[0])); } // const int&
+		{ decltype(bufs[0])& pix = bufs[0]; print_typename(decltype(bufs[0])&); } // const int&
+		{ const decltype(bufs[0])& pix = bufs[0]; print_typename(const decltype(bufs[0])&); } // const int&
 	}
 
 	// lambda expression
@@ -172,6 +287,7 @@ int main()
 		// !!!visual studio cannot compile:
 		//std::cerr << "alignof(arrCV.data): " << alignof(arrCV.data) << std::endl;
 	}
+	// aligned_storage
 	{
 		struct IntAligned {
 			int a;
