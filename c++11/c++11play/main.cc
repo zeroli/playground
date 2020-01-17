@@ -73,6 +73,25 @@ std::string type_name()
 
 #define print_typename(x) { std::cerr << "type of '" #x "' is " << type_name<x>() << std::endl; }
 
+struct Config {
+	Config() : d_own(true), d_ptr(0) { std::cerr << "ctor\n"; }
+
+	Config(const Config& other) : d_own(false), d_ptr(other.d_ptr) { std::cerr << "copy-ctor\n"; }
+
+#if defined(MOVE) and __cplusplus >= 201103L
+	Config(Config&& other) : d_own(other.d_own), d_ptr(other.d_ptr) { other.d_ptr = 0, other.d_own = false; std::cerr << "move-ctor\n"; }
+	Config& operator=(Config&& other) { d_own = other.d_own, d_ptr = other.d_ptr; other.d_own = false, other.d_ptr = 0; std::cerr << "move-assignment\n"; }
+#endif
+
+	friend std::ostream& operator <<(std::ostream& out, const Config& c) { out << "own=" << c.d_own; return out; }
+
+	//private:
+	Config& operator=(const Config& other) { d_own = other.d_own, d_ptr = other.d_ptr; std::cerr << "copy-assignment\n"; }
+
+	bool d_own;
+	int* d_ptr;
+};
+
 int main()
 {
 	int i = 32, &ri = i;
@@ -200,6 +219,37 @@ int main()
 		{ decltype(bufs[0]) pix = bufs[0]; print_typename(decltype(bufs[0])); } // const int&
 		{ decltype(bufs[0])& pix = bufs[0]; print_typename(decltype(bufs[0])&); } // const int&
 		{ const decltype(bufs[0])& pix = bufs[0]; print_typename(const decltype(bufs[0])&); } // const int&
+	}
+	// move semantics
+	{
+		std::vector<Config> v1(1);
+		std::cerr << "v1[0]: " << v1[0] << "\n";  // own = true
+		std::vector<Config> v2(1, Config());
+		std::cerr << "v2[0]: " << v2[0] << "\n"; // own = false
+
+		v2.push_back(Config());
+		std::cerr << "v2[1]: " << v2[1] << "\n"; // own = false
+
+		std::vector<Config> v3;
+		v3.reserve(10);
+		v3.push_back(Config());
+		std::cerr << "v3[0]: " << v3[0] << "\n"; // own = false
+
+#if __cplusplus >= 201103L
+		v3.push_back(std::move(Config())); // 1 copy-ctor take place, or 1 move-ctor take place if move-ctor provided
+		std::cerr << "v3[1]: " << v3[1] << "\n"; // own = false
+
+		Config c;
+		v3.push_back(std::move(c)); // 1 copy-ctor take place or 1 move-ctor take place if move-ctor provided
+		std::cerr << "v3[2]: " << v3[2] << "\n"; // own = false
+
+		Config c1 = std::move(Config()); // 1 copy-ctor take place or 1 move-ctor take if move-ctor provided
+		std::cerr << "c1: " << c1 << "\n"; // own = false
+#endif
+
+		std::vector<Config> v4;
+		v4 = std::vector<Config>(1);
+		std::cerr << "v4[0]: " << v4[0] << "\n"; // own = true
 	}
 
 	// lambda expression
