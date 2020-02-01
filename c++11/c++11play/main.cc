@@ -92,6 +92,37 @@ struct Config {
 	int* d_ptr;
 };
 
+// Task definition to chain multiple tasks and lazy run later
+// Task(f1).Then(f2).Then(f3)....Run(xxx)
+template <typename Ty>
+class Task;
+
+template <typename R, typename... Args>
+class Task<R(Args...)>
+{
+public:
+	Task(std::function<R(Args...)>&& f) : d_fn(std::move(f)) { }
+	Task(std::function<R(Args...)>& f) : d_fn(f) { }
+
+	R Run(Args&&... args)
+	{
+		return d_fn(std::forward<Args>(args)...);
+	}
+
+	template <typename F>
+	auto Then(F&& f) -> Task<typename std::result_of<F(R)>::type(Args...)>
+	{
+		using return_type = typename std::result_of<F(R)>::type;
+
+		auto func = std::move(d_fn); // safe to destroy d_fn for current Task
+		return Task<return_type(Args...)>([func, f](Args&&... args) {
+			return f(func(std::forward<Args>(args)...));
+		});
+	}
+private:
+	std::function<R(Args...)> d_fn;
+};
+
 int main()
 {
 	int i = 32, &ri = i;
@@ -263,7 +294,7 @@ int main()
 		// cannot compile
 		//auto const_val_lambda = [=]() { val = 3; };
 
-		// mutable will make captures to be mutable property, so you could modify it in lambda function
+		// mutable will make function(operator ()(...)) to non-const, so you could modify it in lambda function
 		// while it will not reflect back to enclosing scope, it just change functor object's member data
 		auto mutable_val_lambda = [=]() mutable { val = 3; };
 		mutable_val_lambda();
@@ -406,7 +437,7 @@ int main()
 			std::cerr << "("
 				<< std::get<0>(t) << ","
 				<< std::get<1>(t) << ","
-				<< std::get<2>(t) << ")";
+				<< std::get<2>(t) << ")\n";
 		};
 		print_tuple(tp1);
 		std::tuple<int, std::string, float> t1(10, "Test", 3.14f);
@@ -452,6 +483,19 @@ int main()
 			{ { "John", "Doe" }, "example"},
 			{ { "Mary", "Sue" }, "another"},
 		};
+	}
+	{
+		{
+			Task<int(int)> task([](int i) { return i; });
+			auto result = task.Then([](int i) { return i + 1; }).Then([](int i) { return i + 2; }).Then([](int i) { return i + 3; }).Run(1);
+			std::cerr << result << std::endl;
+		}
+
+		{
+			Task<int(int)> task([](int i) { return i; });
+			auto result = task.Then([](int i) { return i + 4.0; }).Then([](double i) { return i * 2.0; }).Then([](double i) { return i + 3; }).Run(1);
+			std::cerr << result << std::endl;
+		}
 	}
 	return 0;
 }
