@@ -1,0 +1,27 @@
+LIBSIMPLE_1.0 {
+    global:
+        foo1; foo2;
+    local:
+        *;
+};
+
+LIBSIMPLE_1.1 {
+    global:
+        foo4; foo5;
+    local:
+        *;
+};
+
+LIBSIMPLE_2.0 {
+    global:
+        foo1;
+    local:
+        *;
+};
+
+LIBSIMPLE_3.0 {
+    global:
+        foo1;
+    local:
+        *;
+};
