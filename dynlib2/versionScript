@@ -1,0 +1,6 @@
+{
+    global:
+        shlibfirs_function;
+    local:
+        *;
+};
