@@ -108,7 +108,9 @@ class BinaryTree(object):
             if len(s) and s[-1] == p:
                 if p.right:
                     s.append(p.right)
+                    s.append(p.right)
                 if p.left:
+                    s.append(p.left)
                     s.append(p.left)
             else:
                 print p,
@@ -192,6 +194,8 @@ def traverse_tree():
     bt.postorder_iter()
     print
     bt.postorder_iter2()
+    print
+    bt.postorder_iter3()
     print
     bt.level_order()
     print
