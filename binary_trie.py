@@ -110,8 +110,13 @@ class BinaryTrie(object):
         i -= 1
         for j in xrange(i, -1, -1):
             c = (ix >> (w - j - 1)) & 1
+            #if c=0, left is there, jump points to larget one in left-subtree
+            #if c=1, right is there, jump points to smallest one in right-subtree
+            #so c=0, jump should still point to the largest one, after u removed
+            #that's u's precedence
+            #the code in book is wrong here, it was 'u._child[1-c]'
             if v._jump == u:
-                v._jump = u._child[1-c]
+                v._jump = u._child[c]
             v = v._parent
 
         self._n -= 1
