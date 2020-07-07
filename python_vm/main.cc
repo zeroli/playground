@@ -1,7 +1,8 @@
+#include <cstdlib>
+
 #include "buffered_input_stream.h"
 #include "binaryfile_parser.h"
-
-#include <cstdlib>
+#include "interpreter.h"
 
 int main(int argc, char** argv)
 {
@@ -11,7 +12,10 @@ int main(int argc, char** argv)
 	}
 	BufferedInputStream stream(argv[1]);
 	BinaryFileParser parser(&stream);
-	parser.parse();
+	CodeObject* main_code = parser.parse();
+
+	Interpreter interpreter;
+	interpreter.run(main_code);
 
 	return 0;
 }

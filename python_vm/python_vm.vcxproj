@@ -118,15 +118,18 @@
     <ClInclude Include="array_list.h" />
     <ClInclude Include="binaryfile_parser.h" />
     <ClInclude Include="buffered_input_stream.h" />
+    <ClInclude Include="bytecode.h" />
     <ClInclude Include="code_object.h" />
     <ClInclude Include="hi_integer.h" />
     <ClInclude Include="hi_object.h" />
     <ClInclude Include="hi_string.h" />
+    <ClInclude Include="interpreter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="array_list.tpp" />
     <ClCompile Include="binaryfile_parser.cc" />
     <ClCompile Include="hi_string.cc" />
+    <ClCompile Include="interpreter.cc" />
     <ClCompile Include="main.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -28,7 +28,8 @@ public:
 		_lineno(lineno),
 		_notable(notable)
 	{}
-private:
+
+public:
 	int _argcount;
 	int _nlocals;
 	int _stack_size;
