@@ -12,13 +12,16 @@ public:
 
 	int value() const { return _value; }
 
-	virtual void print() const override {
-		printf("%d", _value);
-	}
+	virtual void print() const override;
 
-	virtual HiObject* add(HiObject* x) {
-		return new HiInteger(_value + ((HiInteger*)x)->_value);
-	}
+	virtual HiObject* add(HiObject* x) const override;
+
+	virtual HiObject* greater(HiObject* x) const override;
+	virtual HiObject* less(HiObject* x) const override;
+	virtual HiObject* equal(HiObject* x) const override;
+	virtual HiObject* not_equal(HiObject* x) const override;
+	virtual HiObject* ge(HiObject* x) const override;
+	virtual HiObject* le(HiObject* x) const override;
 };
 
 #endif  // HI_INTEGER_H_

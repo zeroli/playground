@@ -36,18 +36,33 @@
     <ClInclude Include="binaryfile_parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="bytecode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="universe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="array_list.tpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="hi_string.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="binaryfile_parser.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interpreter.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hi_integer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="universe.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

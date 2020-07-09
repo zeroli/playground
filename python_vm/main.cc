@@ -3,6 +3,7 @@
 #include "buffered_input_stream.h"
 #include "binaryfile_parser.h"
 #include "interpreter.h"
+#include "universe.h"
 
 int main(int argc, char** argv)
 {
@@ -10,6 +11,7 @@ int main(int argc, char** argv)
 		printf("vm need a parameter: filename\n");
 		exit(-1);
 	}
+	Universe::genesis();
 	BufferedInputStream stream(argv[1]);
 	BinaryFileParser parser(&stream);
 	CodeObject* main_code = parser.parse();
@@ -17,5 +19,6 @@ int main(int argc, char** argv)
 	Interpreter interpreter;
 	interpreter.run(main_code);
 
+	Universe::destroy();
 	return 0;
 }

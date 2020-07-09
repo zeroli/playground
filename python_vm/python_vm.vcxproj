@@ -124,13 +124,15 @@
     <ClInclude Include="hi_object.h" />
     <ClInclude Include="hi_string.h" />
     <ClInclude Include="interpreter.h" />
+    <ClInclude Include="universe.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="array_list.tpp" />
     <ClCompile Include="binaryfile_parser.cc" />
+    <ClCompile Include="hi_integer.cc" />
     <ClCompile Include="hi_string.cc" />
     <ClCompile Include="interpreter.cc" />
     <ClCompile Include="main.cc" />
+    <ClCompile Include="universe.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

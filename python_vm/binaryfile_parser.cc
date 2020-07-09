@@ -102,7 +102,7 @@ HiString* BinaryFileParser::get_name() const
 // line number table, string
 HiString* BinaryFileParser::get_no_table() const
 {
-	assert(file_stream->read() == 't');
+	assert(file_stream->read() == 's');
 	return get_string();
 }
 
