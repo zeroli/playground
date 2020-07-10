@@ -11,6 +11,14 @@
 
 #define PUSH(x) _stack->add(x)
 #define POP() _stack->pop()
+#define STACK_LEVEL() _stack->size()
+
+Interpreter::~Interpreter()
+{
+	delete _stack;
+	delete _vars;
+	delete _loop_stack;
+}
 
 void Interpreter::run(CodeObject* codes)
 {
@@ -22,6 +30,7 @@ void Interpreter::run(CodeObject* codes)
 	auto&& names = codes->_names;
 
 	_vars = new Map<HiObject*, HiObject *>();
+	_loop_stack = new ArrayList<Block*>();
 
 	while (pc < code_length) {
 		unsigned char op_code = codes->_bytecodes->value()[pc++];
@@ -37,9 +46,23 @@ void Interpreter::run(CodeObject* codes)
 		HiObject* v, *w, *u, *attr;
 		switch (op_code) {
 		case ByteCode::SETUP_LOOP:
+			_loop_stack->add(new Block(op_code, pc + op_arg, STACK_LEVEL()));
 			break;
-		case ByteCode::POP_BLOCK:
+		case ByteCode::POP_BLOCK: {
+			auto&& b = _loop_stack->pop();
+			while (STACK_LEVEL() > b->_level) {
+				POP();
+			}
 			break;
+		}
+		case ByteCode::BREAK_LOOP: {
+			auto&& b = _loop_stack->pop();
+			while (STACK_LEVEL() > b->_level) {
+				POP();
+			}
+			pc = b->_target;
+			break;
+		}
 		case ByteCode::STORE_NAME:
 			_vars->put(names->get(op_arg), POP());
 			break;
