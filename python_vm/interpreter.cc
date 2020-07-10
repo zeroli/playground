@@ -19,6 +19,9 @@ void Interpreter::run(CodeObject* codes)
 
 	_stack = new ArrayList<HiObject*>(codes->_stack_size);
 	_consts = codes->_consts;
+	auto&& names = codes->_names;
+
+	_vars = new Map<HiObject*, HiObject *>();
 
 	while (pc < code_length) {
 		unsigned char op_code = codes->_bytecodes->value()[pc++];
@@ -33,6 +36,16 @@ void Interpreter::run(CodeObject* codes)
 		//HiInteger* lhs, *rhs;
 		HiObject* v, *w, *u, *attr;
 		switch (op_code) {
+		case ByteCode::SETUP_LOOP:
+			break;
+		case ByteCode::POP_BLOCK:
+			break;
+		case ByteCode::STORE_NAME:
+			_vars->put(names->get(op_arg), POP());
+			break;
+		case ByteCode::LOAD_NAME:
+			PUSH(_vars->get(names->get(op_arg)));
+			break;
 		case ByteCode::LOAD_CONST:
 			PUSH(_consts->get(op_arg));
 			break;
@@ -42,6 +55,7 @@ void Interpreter::run(CodeObject* codes)
 			break;
 		case ByteCode::PRINT_NEWLINE:
 			printf("\n");
+			fflush(stdout);
 			break;
 		case ByteCode::BINARY_ADD:
 			v = POP();
@@ -74,7 +88,7 @@ void Interpreter::run(CodeObject* codes)
 				PUSH(v->le(w));
 				break;
 			default:
-				printf("ERROR: Unrecognized compare op %d\n", op_arg);
+				fprintf(stderr, "ERROR: Unrecognized compare op %d\n", op_arg);
 				assert(0);
 			}
 			break;
@@ -86,8 +100,11 @@ void Interpreter::run(CodeObject* codes)
 		case ByteCode::JUMP_FORWARD:
 			pc += op_arg;
 			break;
+		case ByteCode::JUMP_ABSOLUTE:
+			pc = op_arg;
+			break;
 		default:
-			printf("ERROR: unrecognized byte code %d\n", op_code);
+			fprintf(stderr, "ERROR: unrecognized byte code %d\n", op_code);
 			assert(0);
 		}
 	}

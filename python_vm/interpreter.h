@@ -3,6 +3,7 @@
 #define INTERPRETER_H_
 
 #include "array_list.h"
+#include "map.h"
 
 class CodeObject;
 class HiObject;
@@ -20,6 +21,7 @@ private:
 	HiString* _bytecodes;
 	ArrayList<HiObject*>* _stack;
 	ArrayList<HiObject*>* _consts;
+	Map<HiObject*, HiObject*>* _vars;
 };
 
 #endif  // INTERPRETER_H_

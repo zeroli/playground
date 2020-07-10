@@ -7,6 +7,7 @@
 void HiInteger::print() const
 {
 	printf("%d", _value);
+	fflush(stdout);
 }
 
 HiObject* HiInteger::add(HiObject* x) const

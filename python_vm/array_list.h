@@ -57,7 +57,7 @@ void ArrayList<Ty>::expand() {
 	delete[] _array;
 	_array = new_array;
 	_length <<= 1;
-	printf("expand an array to %d, size is %d\n", _length, _size);
+	fprintf(stderr, "expand an array to %d, size is %d\n", _length, _size);
 }
 
 template <typename Ty>

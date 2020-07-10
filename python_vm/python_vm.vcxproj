@@ -124,6 +124,7 @@
     <ClInclude Include="hi_object.h" />
     <ClInclude Include="hi_string.h" />
     <ClInclude Include="interpreter.h" />
+    <ClInclude Include="map.h" />
     <ClInclude Include="universe.h" />
   </ItemGroup>
   <ItemGroup>
