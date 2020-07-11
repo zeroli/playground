@@ -3,21 +3,32 @@
 #ifndef HI_OBJECT_H_
 #define HI_OBJECT_H_
 
+#include <cassert>
+
+class Klass;
+
 class HiObject {
+private:
+	Klass* _klass;
 public:
+	Klass* klass() const { assert(_klass != nullptr); return _klass; }
+	void set_klass(Klass* x) { _klass = x; }
+
 	virtual ~HiObject() = default;
 
-	virtual void print() const { }
-	virtual HiObject* add(HiObject* x) const {
-		return nullptr;
-	}
+	void print() const;
+	HiObject* add(HiObject* x) const;
+	HiObject* sub(HiObject* x) const;
+	HiObject* mul(HiObject* x) const;
+	HiObject* div(HiObject* x) const;
+	HiObject* mod(HiObject* x) const;
 
-	virtual HiObject* greater(HiObject* x) const { return nullptr; }
-	virtual HiObject* less(HiObject* x) const { return nullptr; }
-	virtual HiObject* equal(HiObject* x) const { return nullptr; }
-	virtual HiObject* not_equal(HiObject* x) const { return nullptr; }
-	virtual HiObject* ge(HiObject* x) const { return nullptr; }
-	virtual HiObject* le(HiObject* x) const { return nullptr; }
+	HiObject* greater(HiObject* x) const;
+	HiObject* less(HiObject* x) const;
+	HiObject* equal(HiObject* x) const;
+	HiObject* not_equal(HiObject* x) const;
+	HiObject* ge(HiObject* x) const;
+	HiObject* le(HiObject* x) const;
 };
 
 #endif  // HI_OBJECT_H_

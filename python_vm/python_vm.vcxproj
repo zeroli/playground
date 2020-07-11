@@ -124,12 +124,14 @@
     <ClInclude Include="hi_object.h" />
     <ClInclude Include="hi_string.h" />
     <ClInclude Include="interpreter.h" />
+    <ClInclude Include="Klass.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="universe.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="binaryfile_parser.cc" />
     <ClCompile Include="hi_integer.cc" />
+    <ClCompile Include="hi_object.cc" />
     <ClCompile Include="hi_string.cc" />
     <ClCompile Include="interpreter.cc" />
     <ClCompile Include="main.cc" />

@@ -48,6 +48,9 @@
     <ClInclude Include="map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Klass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cc">
@@ -66,6 +69,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="universe.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hi_object.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
