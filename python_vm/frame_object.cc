@@ -25,8 +25,15 @@ FrameObject::FrameObject(FunctionObject* func, ObjList args)
 {
 	_globals = func->globals();
 
-	if (args) {
-		_fast_locals = new ArrayList<HiObject*>();
+	_fast_locals = new ArrayList<HiObject*>();
+	if (func->_defaults) {
+		int dft_cnt = func->_defaults->length();
+		int argcnt = _codes->_argcount;
+		while (dft_cnt--) {
+			_fast_locals->set(--argcnt, func->_defaults->get(dft_cnt));
+		}
+	}
+	if (args) {		
 		for (int i = 0; i < args->length(); i++) {
 			_fast_locals->set(i, args->get(i));
 		}

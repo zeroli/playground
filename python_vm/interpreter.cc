@@ -177,6 +177,16 @@ void Interpreter::eval_frame()
 			v = POP();  // code object
 			auto fo = new FunctionObject(v);
 			fo->set_globals(_frame->globals());
+
+			ArrayList<HiObject*>* args = nullptr;
+			if (op_arg > 0) {
+				args = new ArrayList<HiObject*>(op_arg);
+				while (op_arg--) {
+					args->set(op_arg, POP());
+				}
+			}
+			fo->set_defaults(args);
+			delete args;
 			PUSH(fo);
 			break;
 		}

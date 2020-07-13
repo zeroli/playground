@@ -26,13 +26,14 @@ private:
 	CodeObject* _func_code;
 	HiString* _func_name;
 	Map<HiObject*, HiObject*>* _globals;
+	ObjList _defaults;
 
 	unsigned int _flags;
 
 public:
 	explicit FunctionObject(HiObject* code_object);
 	explicit FunctionObject(Klass* klass)
-		: _func_code(nullptr), _func_name(nullptr), _globals(nullptr), _flags(0)
+		: _func_code(nullptr), _func_name(nullptr), _globals(nullptr), _defaults(nullptr), _flags(0)
 	{
 		set_klass(klass);
 	}
@@ -43,6 +44,7 @@ public:
 	int flags() const { return _flags; }
 
 	void set_globals(Map<HiObject*, HiObject*>* globals) { _globals = globals; }
+	void set_defaults(ArrayList<HiObject*>* defaults);
 };
 
 
