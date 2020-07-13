@@ -24,6 +24,8 @@ void ByteCode::initialize()
 	s_bytecodes[JUMP_ABSOLUTE] = STR_OP_CODE(JUMP_ABSOLUTE);
 	s_bytecodes[POP_JUMP_IF_FALSE] = STR_OP_CODE(POP_JUMP_IF_FALSE);
 	s_bytecodes[SETUP_LOOP] = STR_OP_CODE(SETUP_LOOP);
+	s_bytecodes[LOAD_FAST] = STR_OP_CODE(LOAD_FAST);
+	s_bytecodes[STORE_FAST] = STR_OP_CODE(STORE_FAST);
 	s_bytecodes[CALL_FUNCTION] = STR_OP_CODE(CALL_FUNCTION);
 	s_bytecodes[MAKE_FUNCTION] = STR_OP_CODE(MAKE_FUNCTION);
 }

@@ -10,10 +10,12 @@ class CodeObject;
 class Block;
 class FunctionObject;
 
+typedef ArrayList<HiObject*>* ObjList;
+
 class FrameObject {
 public:
 	explicit FrameObject(CodeObject* codes);
-	explicit FrameObject(FunctionObject* func);
+	explicit FrameObject(FunctionObject* func, ObjList args);
 	~FrameObject();
 
 	ArrayList<HiObject*>* _stack;
@@ -24,6 +26,7 @@ public:
 
 	Map<HiObject*, HiObject*>* _locals;
 	Map<HiObject*, HiObject*>* _globals;
+	ArrayList<HiObject*>* _fast_locals;
 
 	CodeObject* _codes;
 	mutable int _pc;
@@ -43,6 +46,7 @@ public:
 	ArrayList<HiObject*>* names() const { return _names; }
 	Map<HiObject*, HiObject*>* locals() const { return _locals; }
 	Map<HiObject*, HiObject*>* globals() const { return _globals; }
+	ArrayList<HiObject*>* fast_locals() const { return _fast_locals;  }
 
 	bool has_more_codes() const;
 	unsigned char get_op_code() const;

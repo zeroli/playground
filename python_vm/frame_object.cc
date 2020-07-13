@@ -12,6 +12,7 @@ FrameObject::FrameObject(CodeObject* codes)
 	, _names(codes->_names)
 	, _locals(new Map<HiObject*, HiObject*>())
 	, _globals(_locals)
+	, _fast_locals(nullptr)
 	, _codes(codes)
 	, _pc(0)
 	, _parent(nullptr)
@@ -19,10 +20,17 @@ FrameObject::FrameObject(CodeObject* codes)
 
 }
 
-FrameObject::FrameObject(FunctionObject* func)
+FrameObject::FrameObject(FunctionObject* func, ObjList args)
 	: FrameObject(func->_func_code)
 {
 	_globals = func->globals();
+
+	if (args) {
+		_fast_locals = new ArrayList<HiObject*>();
+		for (int i = 0; i < args->length(); i++) {
+			_fast_locals->set(i, args->get(i));
+		}
+	}
 }
 
 FrameObject::~FrameObject()

@@ -9,6 +9,7 @@ class CodeObject;
 class HiObject;
 class HiString;
 class FrameObject;
+typedef ArrayList<HiObject*>* ObjList;
 
 class Block {
 public:
@@ -31,7 +32,7 @@ private:
 	void eval_frame();
 	void leave_frame();
 	void destroy_frame();
-	void build_frame(HiObject* callable);
+	void build_frame(HiObject* callable, ObjList args);
 private:
 	Map<HiObject*, HiObject*>* _builtins;
 	FrameObject* _frame;  // current frame which is running

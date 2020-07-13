@@ -181,7 +181,24 @@ void Interpreter::eval_frame()
 			break;
 		}
 		case ByteCode::CALL_FUNCTION:
-			build_frame(POP());
+		{
+			ArrayList<HiObject*>* args = nullptr;
+			if (op_arg > 0) {
+				args = new ArrayList<HiObject*>(op_arg);
+				while (op_arg--) {
+					args->set(op_arg, POP());
+				}
+			}
+
+			build_frame(POP(), args);
+			delete args;
+			break;
+		}
+		case ByteCode::LOAD_FAST:
+			PUSH(_frame->fast_locals()->get(op_arg));
+			break;
+		case ByteCode::STORE_FAST:
+			_frame->fast_locals()->set(op_arg, POP());
 			break;
 		default:
 			fprintf(stderr, "ERROR: unrecognized byte code %d\n", op_code);
@@ -203,9 +220,9 @@ void Interpreter::destroy_frame()
 	delete tmp;
 }
 
-void Interpreter::build_frame(HiObject* callable)
+void Interpreter::build_frame(HiObject* callable, ObjList args)
 {
-	FrameObject* frame = new FrameObject((FunctionObject*)callable);
+	FrameObject* frame = new FrameObject((FunctionObject*)callable, args);
 	frame->set_parent(_frame);
 	_frame = frame;
 }
