@@ -8,69 +8,71 @@
 #include "hi_string.h"
 #include "hi_integer.h"
 #include "universe.h"
+#include "frame_object.h"
+#include "function_object.h"
 
-#define PUSH(x) _stack->add(x)
-#define POP() _stack->pop()
-#define STACK_LEVEL() _stack->size()
+#define PUSH(x) _frame->stack()->add(x)
+#define POP() _frame->stack()->pop()
+#define STACK_LEVEL() _frame->stack()->size()
 
 Interpreter::~Interpreter()
 {
-	delete _stack;
 	delete _vars;
-	delete _loop_stack;
 }
 
 void Interpreter::run(CodeObject* codes)
 {
-	int pc = 0;
-	int code_length = codes->_bytecodes->length();
+	_frame = new FrameObject(codes);
 
-	_stack = new ArrayList<HiObject*>(codes->_stack_size);
-	_consts = codes->_consts;
-	auto&& names = codes->_names;
+	eval_frame();
+	destroy_frame();
+}
 
+void Interpreter::eval_frame()
+{
 	_vars = new Map<HiObject*, HiObject *>();
-	_loop_stack = new ArrayList<Block*>();
 
-	while (pc < code_length) {
-		unsigned char op_code = codes->_bytecodes->value()[pc++];
+	while (_frame->has_more_codes()) {
+		unsigned char op_code = _frame->get_op_code();
 		bool has_argument = (op_code & 0xFF) >= ByteCode::HAVE_ARGUMENT;
 
 		int op_arg = -1;
 		if (has_argument) {
-			int byte1 = (codes->_bytecodes->value()[pc++] & 0xFF);
-			op_arg = ((codes->_bytecodes->value()[pc++] & 0xFF) << 8) | byte1;
+			op_arg = _frame->get_op_arg();
 		}
 
 		//HiInteger* lhs, *rhs;
 		HiObject* v, *w, *u, *attr;
 		switch (op_code) {
+		case ByteCode::POP_TOP:
+			POP();
+			break;
 		case ByteCode::SETUP_LOOP:
-			_loop_stack->add(new Block(op_code, pc + op_arg, STACK_LEVEL()));
+			_frame->loop_stack()->add(new Block(op_code, _frame->get_pc() + op_arg, STACK_LEVEL()));
 			break;
 		case ByteCode::POP_BLOCK: {
-			auto&& b = _loop_stack->pop();
+			auto&& b = _frame->loop_stack()->pop();
 			while (STACK_LEVEL() > b->_level) {
 				POP();
 			}
 			break;
 		}
 		case ByteCode::BREAK_LOOP: {
-			auto&& b = _loop_stack->pop();
+			auto&& b = _frame->loop_stack()->pop();
 			while (STACK_LEVEL() > b->_level) {
 				POP();
 			}
-			pc = b->_target;
+			_frame->set_pc(b->_target);
 			break;
 		}
 		case ByteCode::STORE_NAME:
-			_vars->put(names->get(op_arg), POP());
+			_vars->put(_frame->names()->get(op_arg), POP());
 			break;
 		case ByteCode::LOAD_NAME:
-			PUSH(_vars->get(names->get(op_arg)));
+			PUSH(_vars->get(_frame->names()->get(op_arg)));
 			break;
 		case ByteCode::LOAD_CONST:
-			PUSH(_consts->get(op_arg));
+			PUSH(_frame->consts()->get(op_arg));
 			break;
 		case ByteCode::PRINT_ITEM:
 			v = POP();
@@ -86,7 +88,10 @@ void Interpreter::run(CodeObject* codes)
 			PUSH(w->add(v));
 			break;
 		case ByteCode::RETURN_VALUE:
-			POP();
+			_ret_value = POP();
+			if (_frame->is_first_frame())
+				return;
+			leave_frame();
 			break;
 		case ByteCode::COMPARE_OP:
 			w = POP();
@@ -118,17 +123,47 @@ void Interpreter::run(CodeObject* codes)
 		case ByteCode::POP_JUMP_IF_FALSE:
 			v = POP();
 			if (v == Universe::HiFalse)
-				pc = op_arg;
+				_frame->set_pc(op_arg);
 			break;
 		case ByteCode::JUMP_FORWARD:
-			pc += op_arg;
+			_frame->set_pc(_frame->get_pc() + op_arg);
 			break;
 		case ByteCode::JUMP_ABSOLUTE:
-			pc = op_arg;
+			_frame->set_pc(op_arg);
+			break;
+		case ByteCode::MAKE_FUNCTION:
+		{
+			v = POP();  // code object
+			auto fo = new FunctionObject(v);
+			PUSH(fo);
+			break;
+		}
+		case ByteCode::CALL_FUNCTION:
+			build_frame(POP());
 			break;
 		default:
 			fprintf(stderr, "ERROR: unrecognized byte code %d\n", op_code);
 			assert(0);
 		}
 	}
+}
+
+void Interpreter::leave_frame()
+{
+	destroy_frame();
+	PUSH(_ret_value);
+}
+
+void Interpreter::destroy_frame()
+{
+	FrameObject* tmp = _frame;
+	_frame = _frame->get_parent();
+	delete tmp;
+}
+
+void Interpreter::build_frame(HiObject* callable)
+{
+	FrameObject* frame = new FrameObject(((FunctionObject*)callable)->func_code());
+	frame->set_parent(_frame);
+	_frame = frame;
 }

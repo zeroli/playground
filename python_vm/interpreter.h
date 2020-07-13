@@ -8,6 +8,7 @@
 class CodeObject;
 class HiObject;
 class HiString;
+class FrameObject;
 
 class Block {
 public:
@@ -22,18 +23,21 @@ public:
 class Interpreter {
 public:
 	Interpreter()
-		: _bytecodes(nullptr), _stack(nullptr), _consts(nullptr)
+		: _frame(nullptr), _vars(nullptr)
 	{}
 	~Interpreter();
 
 	void run(CodeObject* codes);
 
 private:
-	HiString* _bytecodes;
-	ArrayList<HiObject*>* _stack;
-	ArrayList<HiObject*>* _consts;
+	void eval_frame();
+	void leave_frame();
+	void destroy_frame();
+	void build_frame(HiObject* callable);
+private:
+	FrameObject* _frame;  // current frame which is running
 	Map<HiObject*, HiObject*>* _vars;
-	ArrayList<Block*>* _loop_stack;
+	HiObject* _ret_value;
 };
 
 #endif  // INTERPRETER_H_

@@ -58,6 +58,16 @@ ArrayList<HiObject*>* BinaryFileParser::get_consts() const
 	return NULL;
 }
 
+ArrayList<HiObject*>* BinaryFileParser::get_names() const
+{
+	// similar to get_consts list
+	if (file_stream->read() == '(') {
+		return get_tuple();
+	}
+	file_stream->unread();
+	return NULL;
+}
+
 // variable names of arguments for function/method
 ArrayList<HiObject*>* BinaryFileParser::get_var_names() const
 {
@@ -95,8 +105,19 @@ HiString* BinaryFileParser::get_file_name() const
 // module name this code belongs to
 HiString* BinaryFileParser::get_name() const
 {
-	assert(file_stream->read() == 't');
-	return get_string();
+	char ch = file_stream->read();
+	if (ch == 's') {
+		return get_string();
+	}
+	else if (ch == 't') {
+		HiString* str = get_string();
+		_string_table.add(str);
+		return str;
+	}
+	else if (ch == 'R') {
+		return _string_table.get(file_stream->read_int());
+	}
+	return nullptr;
 }
 
 // line number table, string
@@ -157,17 +178,6 @@ ArrayList<HiObject*>* BinaryFileParser::get_tuple() const
 	}
 	return list;
 }
-
-ArrayList<HiObject*>* BinaryFileParser::get_names() const
-{
-	// similar to get_consts list
-	if (file_stream->read() == '(') {
-		return get_tuple();
-	}
-	file_stream->unread();
-	return NULL;
-}
-
 
 CodeObject* BinaryFileParser::parse()
 {

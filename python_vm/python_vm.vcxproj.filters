@@ -51,6 +51,12 @@
     <ClInclude Include="Klass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="frame_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="function_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cc">
@@ -72,6 +78,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="hi_object.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="frame_object.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="function_object.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -120,6 +120,8 @@
     <ClInclude Include="buffered_input_stream.h" />
     <ClInclude Include="bytecode.h" />
     <ClInclude Include="code_object.h" />
+    <ClInclude Include="frame_object.h" />
+    <ClInclude Include="function_object.h" />
     <ClInclude Include="hi_integer.h" />
     <ClInclude Include="hi_object.h" />
     <ClInclude Include="hi_string.h" />
@@ -130,6 +132,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="binaryfile_parser.cc" />
+    <ClCompile Include="frame_object.cc" />
+    <ClCompile Include="function_object.cc" />
     <ClCompile Include="hi_integer.cc" />
     <ClCompile Include="hi_object.cc" />
     <ClCompile Include="hi_string.cc" />
