@@ -14,10 +14,22 @@
 #define PUSH(x) _frame->stack()->add(x)
 #define POP() _frame->stack()->pop()
 #define STACK_LEVEL() _frame->stack()->size()
+#define DBG(...) fprintf(stderr, __VA_ARGS__)
+
+Interpreter::Interpreter()
+	: _builtins(new Map<HiObject*, HiObject*>())
+	, _frame(nullptr), _ret_value(nullptr)
+{
+	_builtins->put(new HiString("True"), Universe::HiTrue);
+	_builtins->put(new HiString("False"), Universe::HiFalse);
+	_builtins->put(new HiString("None"), Universe::HiNone);
+
+	ByteCode::initialize();
+}
 
 Interpreter::~Interpreter()
 {
-	delete _vars;
+	delete _builtins;
 }
 
 void Interpreter::run(CodeObject* codes)
@@ -30,8 +42,6 @@ void Interpreter::run(CodeObject* codes)
 
 void Interpreter::eval_frame()
 {
-	_vars = new Map<HiObject*, HiObject *>();
-
 	while (_frame->has_more_codes()) {
 		unsigned char op_code = _frame->get_op_code();
 		bool has_argument = (op_code & 0xFF) >= ByteCode::HAVE_ARGUMENT;
@@ -41,6 +51,7 @@ void Interpreter::eval_frame()
 			op_arg = _frame->get_op_arg();
 		}
 
+		DBG("run %s (%d)\n", ByteCode::lookup(op_code), op_code);
 		//HiInteger* lhs, *rhs;
 		HiObject* v, *w, *u, *attr;
 		switch (op_code) {
@@ -66,10 +77,27 @@ void Interpreter::eval_frame()
 			break;
 		}
 		case ByteCode::STORE_NAME:
-			_vars->put(_frame->names()->get(op_arg), POP());
+			_frame->locals()->put(_frame->names()->get(op_arg), POP());
 			break;
 		case ByteCode::LOAD_NAME:
-			PUSH(_vars->get(_frame->names()->get(op_arg)));
+			// LEGB scope
+			v = _frame->names()->get(op_arg);
+			w = _frame->locals()->get(v);
+			if (w != Universe::HiNone) {
+				PUSH(w);
+				break;
+			}
+			w = _frame->globals()->get(v);
+			if (w != Universe::HiNone) {
+				PUSH(w);
+				break;
+			}
+			w = _builtins->get(v);
+			if (w != Universe::HiNone) {
+				PUSH(w);
+				break;
+			}				
+			PUSH(Universe::HiNone);
 			break;
 		case ByteCode::LOAD_CONST:
 			PUSH(_frame->consts()->get(op_arg));
@@ -83,6 +111,7 @@ void Interpreter::eval_frame()
 			fflush(stdout);
 			break;
 		case ByteCode::BINARY_ADD:
+			DBG("run BINARY_ADD (%d)\n", op_code);
 			v = POP();
 			w = POP();
 			PUSH(w->add(v));
@@ -115,6 +144,18 @@ void Interpreter::eval_frame()
 			case COMPARE::LESS_EQUAL:
 				PUSH(v->le(w));
 				break;
+			case COMPARE::IS:
+				if (v == w)
+					PUSH(Universe::HiTrue);
+				else
+					PUSH(Universe::HiFalse);
+				break;
+			case COMPARE::IS_NOT:
+				if (v != w)
+					PUSH(Universe::HiTrue);
+				else
+					PUSH(Universe::HiFalse);
+				break;
 			default:
 				fprintf(stderr, "ERROR: Unrecognized compare op %d\n", op_arg);
 				assert(0);
@@ -135,6 +176,7 @@ void Interpreter::eval_frame()
 		{
 			v = POP();  // code object
 			auto fo = new FunctionObject(v);
+			fo->set_globals(_frame->globals());
 			PUSH(fo);
 			break;
 		}
@@ -163,7 +205,7 @@ void Interpreter::destroy_frame()
 
 void Interpreter::build_frame(HiObject* callable)
 {
-	FrameObject* frame = new FrameObject(((FunctionObject*)callable)->func_code());
+	FrameObject* frame = new FrameObject((FunctionObject*)callable);
 	frame->set_parent(_frame);
 	_frame = frame;
 }

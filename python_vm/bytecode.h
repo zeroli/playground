@@ -19,7 +19,7 @@ public:
 	// index in const list
 	static const unsigned char LOAD_CONST = 100;
 	static const unsigned char LOAD_NAME = 101; /* Index in name list */
-	// comparision operator
+	// comparison operator
 	static const unsigned char COMPARE_OP = 107;
 	// number of bytes to skip
 	static const unsigned char JUMP_FORWARD = 110;
@@ -30,6 +30,9 @@ public:
 
 	static const unsigned char CALL_FUNCTION = 131;
 	static const unsigned char MAKE_FUNCTION = 132;
+
+	static void initialize();
+	static const char* lookup(unsigned char op_code);
 };
 
 enum COMPARE {
@@ -39,6 +42,9 @@ enum COMPARE {
 	NOT_EQUAL = 3,
 	GREATER = 4,
 	GREATER_EQUAL = 5,
+	IS = 8,
+	IS_NOT = 9,
+
 };
 
 #endif  // BYTE_CODE_H_

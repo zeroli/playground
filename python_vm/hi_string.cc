@@ -118,11 +118,9 @@ HiObject* StringKlass::mod(const HiObject* x, const HiObject* y) const
 	return nullptr;
 }
 
-HiString::HiString(const char* x) {
-	_length = strlen(x);
-	_value = new char[_length];
-	strncpy_s(_value, _length, x, _length);
-	set_klass(StringKlass::get_instance());
+HiString::HiString(const char* x)
+	: HiString(x, strlen(x))
+{
 }
 
 HiString::HiString(const char* x, int length) {

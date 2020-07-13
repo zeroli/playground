@@ -22,9 +22,7 @@ public:
 };
 class Interpreter {
 public:
-	Interpreter()
-		: _frame(nullptr), _vars(nullptr)
-	{}
+	Interpreter();
 	~Interpreter();
 
 	void run(CodeObject* codes);
@@ -35,8 +33,8 @@ private:
 	void destroy_frame();
 	void build_frame(HiObject* callable);
 private:
+	Map<HiObject*, HiObject*>* _builtins;
 	FrameObject* _frame;  // current frame which is running
-	Map<HiObject*, HiObject*>* _vars;
 	HiObject* _ret_value;
 };
 

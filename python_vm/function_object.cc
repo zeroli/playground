@@ -30,6 +30,7 @@ FunctionObject::FunctionObject(HiObject* code_object)
 	_func_code = co;
 	_func_name = co->_co_name;
 	_flags = co->_flag;
+	_globals = nullptr;
 
 	set_klass(FunctionKlass::get_instance());
 }

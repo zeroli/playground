@@ -25,20 +25,24 @@ class FunctionObject : public HiObject {
 private:
 	CodeObject* _func_code;
 	HiString* _func_name;
+	Map<HiObject*, HiObject*>* _globals;
 
 	unsigned int _flags;
 
 public:
 	explicit FunctionObject(HiObject* code_object);
 	explicit FunctionObject(Klass* klass)
-		: _func_code(nullptr), _func_name(nullptr), _flags(0)
+		: _func_code(nullptr), _func_name(nullptr), _globals(nullptr), _flags(0)
 	{
 		set_klass(klass);
 	}
 
 	CodeObject* func_code() const { return _func_code; }
 	HiString* func_name() const { return _func_name; }
+	Map<HiObject*, HiObject*>* globals() const { return _globals;  }
 	int flags() const { return _flags; }
+
+	void set_globals(Map<HiObject*, HiObject*>* globals) { _globals = globals; }
 };
 
 

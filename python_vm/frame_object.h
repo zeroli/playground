@@ -8,10 +8,12 @@
 class HiObject;
 class CodeObject;
 class Block;
+class FunctionObject;
 
 class FrameObject {
 public:
-	FrameObject(CodeObject* codes);
+	explicit FrameObject(CodeObject* codes);
+	explicit FrameObject(FunctionObject* func);
 	~FrameObject();
 
 	ArrayList<HiObject*>* _stack;
@@ -21,6 +23,7 @@ public:
 	ArrayList<HiObject*>* _names;
 
 	Map<HiObject*, HiObject*>* _locals;
+	Map<HiObject*, HiObject*>* _globals;
 
 	CodeObject* _codes;
 	mutable int _pc;
@@ -39,6 +42,7 @@ public:
 	ArrayList<HiObject*>* consts() const { return _consts; }
 	ArrayList<HiObject*>* names() const { return _names; }
 	Map<HiObject*, HiObject*>* locals() const { return _locals; }
+	Map<HiObject*, HiObject*>* globals() const { return _globals; }
 
 	bool has_more_codes() const;
 	unsigned char get_op_code() const;

@@ -1,20 +1,28 @@
 #include "frame_object.h"
 #include "code_object.h"
 #include "hi_object.h"
+#include "function_object.h"
 
 using namespace std;
 
 FrameObject::FrameObject(CodeObject* codes)
-	: _consts(codes->_consts)
+	: _stack(new ArrayList<HiObject*>(codes->_stack_size))
+	, _loop_stack(new ArrayList<Block*>())
+	, _consts(codes->_consts)
 	, _names(codes->_names)
 	, _locals(new Map<HiObject*, HiObject*>())
-	, _stack(new ArrayList<HiObject*>(codes->_stack_size))
-	, _loop_stack(new ArrayList<Block*>())
+	, _globals(_locals)
 	, _codes(codes)
 	, _pc(0)
 	, _parent(nullptr)
 {
 
+}
+
+FrameObject::FrameObject(FunctionObject* func)
+	: FrameObject(func->_func_code)
+{
+	_globals = func->globals();
 }
 
 FrameObject::~FrameObject()
