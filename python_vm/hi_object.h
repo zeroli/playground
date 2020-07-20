@@ -29,6 +29,8 @@ public:
 	HiObject* not_equal(HiObject* x) const;
 	HiObject* ge(HiObject* x) const;
 	HiObject* le(HiObject* x) const;
+
+	HiObject* len() const;
 };
 
 #endif  // HI_OBJECT_H_

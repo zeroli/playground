@@ -29,6 +29,8 @@ public:
 	virtual HiObject* mul(const HiObject* x, const HiObject* y) const override;
 	virtual HiObject* div(const HiObject* x, const HiObject* y) const override;
 	virtual HiObject* mod(const HiObject* x, const HiObject* y) const override;
+
+	virtual HiObject* len(const HiObject* x) const override;
 };
 
 class HiString : public HiObject {

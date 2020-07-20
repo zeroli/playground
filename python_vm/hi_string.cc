@@ -118,6 +118,11 @@ HiObject* StringKlass::mod(const HiObject* x, const HiObject* y) const
 	return nullptr;
 }
 
+HiObject* StringKlass::len(const HiObject* x) const
+{
+	return new HiInteger(((const HiString*)x)->length());
+}
+
 HiString::HiString(const char* x)
 	: HiString(x, strlen(x))
 {

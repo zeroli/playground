@@ -18,6 +18,18 @@ public:
 	virtual void print(const HiObject* obj) const override;
 };
 
+class NativeFunctionKlass : public Klass {
+private:
+	NativeFunctionKlass() = default;
+	static NativeFunctionKlass* instance;
+
+public:
+	static NativeFunctionKlass* get_instance();
+};
+
+HiObject* len(ObjList args);
+typedef HiObject* (*NativeFuncPointer)(ObjList args);
+
 class FunctionObject : public HiObject {
 	friend class FunctionKlass;
 	friend class FrameObject;
@@ -30,6 +42,7 @@ private:
 
 	unsigned int _flags;
 
+	NativeFuncPointer _native_func;
 public:
 	explicit FunctionObject(HiObject* code_object);
 	explicit FunctionObject(Klass* klass)
@@ -37,6 +50,7 @@ public:
 	{
 		set_klass(klass);
 	}
+	explicit FunctionObject(NativeFuncPointer nfp);
 
 	CodeObject* func_code() const { return _func_code; }
 	HiString* func_name() const { return _func_name; }
@@ -45,6 +59,8 @@ public:
 
 	void set_globals(Map<HiObject*, HiObject*>* globals) { _globals = globals; }
 	void set_defaults(ArrayList<HiObject*>* defaults);
+
+	HiObject* call(ObjList args);
 };
 
 

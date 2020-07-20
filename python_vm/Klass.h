@@ -28,6 +28,8 @@ public:
 	virtual HiObject* mul(const HiObject* x, const HiObject* y) const { return nullptr; }
 	virtual HiObject* div(const HiObject* x, const HiObject* y) const { return nullptr; }
 	virtual HiObject* mod(const HiObject* x, const HiObject* y) const { return nullptr; }
+
+	virtual HiObject* len(const HiObject* x) const { return nullptr; }
 };
 
 #endif  // KLASS_H_

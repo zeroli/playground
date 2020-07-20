@@ -28,6 +28,7 @@ void ByteCode::initialize()
 	s_bytecodes[STORE_FAST] = STR_OP_CODE(STORE_FAST);
 	s_bytecodes[CALL_FUNCTION] = STR_OP_CODE(CALL_FUNCTION);
 	s_bytecodes[MAKE_FUNCTION] = STR_OP_CODE(MAKE_FUNCTION);
+	s_bytecodes[LOAD_GLOBAL] = STR_OP_CODE(LOAD_GLOBAL);
 }
 
 const char* ByteCode::lookup(unsigned char op_code)

@@ -23,6 +23,16 @@ void FunctionKlass::print(const HiObject* obj) const
 	printf(">");
 }
 
+NativeFunctionKlass* NativeFunctionKlass::instance = nullptr;
+
+NativeFunctionKlass* NativeFunctionKlass::get_instance()
+{
+	if (instance == nullptr)
+		instance = new NativeFunctionKlass();
+
+	return instance;
+}
+
 FunctionObject::FunctionObject(HiObject* code_object)
 {
 	CodeObject* co = (CodeObject*)code_object;
@@ -36,6 +46,23 @@ FunctionObject::FunctionObject(HiObject* code_object)
 	set_klass(FunctionKlass::get_instance());
 }
 
+FunctionObject::FunctionObject(NativeFuncPointer nfp)
+{
+	_func_code = nullptr;
+	_func_name = nullptr;
+	_flags = 0;
+	_globals = nullptr;
+	_native_func = nfp;
+
+	set_klass(NativeFunctionKlass::get_instance());
+}
+
+HiObject* FunctionObject::call(ObjList args)
+{
+	assert(_native_func);
+	return (*_native_func)(args);
+}
+
 void FunctionObject::set_defaults(ArrayList<HiObject *>* defaults)
 {
 	if (defaults == nullptr) {
@@ -46,4 +73,9 @@ void FunctionObject::set_defaults(ArrayList<HiObject *>* defaults)
 	for (int i = 0; i < defaults->length(); i++) {
 		_defaults->set(i, defaults->get(i));
 	}
+}
+
+HiObject* len(ObjList args)
+{
+	return args->get(0)->len();
 }

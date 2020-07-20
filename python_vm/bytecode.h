@@ -25,6 +25,7 @@ public:
 	static const unsigned char JUMP_FORWARD = 110;
 	static const unsigned char JUMP_ABSOLUTE = 113;
 	static const unsigned char POP_JUMP_IF_FALSE = 114;
+	static const unsigned char LOAD_GLOBAL = 116;
 
 	static const unsigned char SETUP_LOOP = 120; /* Target address (relative) */
 	static const unsigned char LOAD_FAST = 124; /* Local variable number */

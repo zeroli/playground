@@ -23,6 +23,7 @@ Interpreter::Interpreter()
 	_builtins->put(new HiString("True"), Universe::HiTrue);
 	_builtins->put(new HiString("False"), Universe::HiFalse);
 	_builtins->put(new HiString("None"), Universe::HiNone);
+	_builtins->put(new HiString("len"), new FunctionObject(len));
 
 	ByteCode::initialize();
 }
@@ -210,6 +211,20 @@ void Interpreter::eval_frame()
 		case ByteCode::STORE_FAST:
 			_frame->fast_locals()->set(op_arg, POP());
 			break;
+		case ByteCode::LOAD_GLOBAL:
+			v = _frame->names()->get(op_arg);
+			w = _frame->globals()->get(v);
+			if (w != Universe::HiNone) {
+				PUSH(w);
+				break;
+			}
+			w = _builtins->get(v);
+			if (w != Universe::HiNone) {
+				PUSH(w);
+				break;
+			}
+			PUSH(Universe::HiNone);
+			break;
 		default:
 			fprintf(stderr, "ERROR: unrecognized byte code %d\n", op_code);
 			assert(0);
@@ -232,7 +247,12 @@ void Interpreter::destroy_frame()
 
 void Interpreter::build_frame(HiObject* callable, ObjList args)
 {
-	FrameObject* frame = new FrameObject((FunctionObject*)callable, args);
-	frame->set_parent(_frame);
-	_frame = frame;
+	if (callable->klass() == NativeFunctionKlass::get_instance()) {
+		PUSH(((FunctionObject*)callable)->call(args));
+	}
+	else if (callable->klass() == FunctionKlass::get_instance()) {
+		FrameObject* frame = new FrameObject((FunctionObject*)callable, args);
+		frame->set_parent(_frame);
+		_frame = frame;
+	}
 }

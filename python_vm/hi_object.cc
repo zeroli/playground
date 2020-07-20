@@ -61,3 +61,8 @@ HiObject* HiObject::le(HiObject* x) const
 {
 	return klass()->le(this, x);
 }
+
+HiObject* HiObject::len() const
+{
+	return klass()->len(this);
+}
