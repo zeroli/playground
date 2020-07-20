@@ -31,6 +31,8 @@ public:
 	HiObject* le(HiObject* x) const;
 
 	HiObject* len() const;
+
+	HiObject* getattr(HiObject* x);
 };
 
 #endif  // HI_OBJECT_H_

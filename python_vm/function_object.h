@@ -30,6 +30,8 @@ public:
 HiObject* len(ObjList args);
 typedef HiObject* (*NativeFuncPointer)(ObjList args);
 
+HiObject* string_upper(ObjList args);
+
 class FunctionObject : public HiObject {
 	friend class FunctionKlass;
 	friend class FrameObject;

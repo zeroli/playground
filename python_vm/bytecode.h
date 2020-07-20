@@ -19,6 +19,7 @@ public:
 	// index in const list
 	static const unsigned char LOAD_CONST = 100;
 	static const unsigned char LOAD_NAME = 101; /* Index in name list */
+	static const unsigned char LOAD_ATTR = 106;
 	// comparison operator
 	static const unsigned char COMPARE_OP = 107;
 	// number of bytes to skip

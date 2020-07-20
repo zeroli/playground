@@ -1,6 +1,9 @@
 #include "hi_object.h"
 
 #include "klass.h"
+#include "universe.h"
+#include "hi_dict.h"
+#include "method_object.h"
 
 void HiObject::print() const
 {
@@ -65,4 +68,17 @@ HiObject* HiObject::le(HiObject* x) const
 HiObject* HiObject::len() const
 {
 	return klass()->len(this);
+}
+
+HiObject* HiObject::getattr(HiObject* x)
+{
+	HiObject* result = Universe::HiNone;
+	result = klass()->klass_dict()->get(x);
+
+	if (result == Universe::HiNone)
+		return result;
+
+	if (MethodObject::is_function(result))
+		result = new MethodObject((FunctionObject*)result, this);
+	return result;
 }

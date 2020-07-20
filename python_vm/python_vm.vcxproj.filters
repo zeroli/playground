@@ -57,6 +57,12 @@
     <ClInclude Include="function_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="hi_dict.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="method_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cc">
@@ -87,6 +93,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="bytecode.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hi_dict.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="method_object.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

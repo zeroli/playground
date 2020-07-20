@@ -10,6 +10,7 @@
 #include "universe.h"
 #include "frame_object.h"
 #include "function_object.h"
+#include "method_object.h"
 
 #define PUSH(x) _frame->stack()->add(x)
 #define POP() _frame->stack()->pop()
@@ -225,6 +226,11 @@ void Interpreter::eval_frame()
 			}
 			PUSH(Universe::HiNone);
 			break;
+		case ByteCode::LOAD_ATTR:
+			v = POP();
+			w = _frame->_names->get(op_arg);
+			PUSH(v->getattr(w));
+			break;
 		default:
 			fprintf(stderr, "ERROR: unrecognized byte code %d\n", op_code);
 			assert(0);
@@ -249,6 +255,14 @@ void Interpreter::build_frame(HiObject* callable, ObjList args)
 {
 	if (callable->klass() == NativeFunctionKlass::get_instance()) {
 		PUSH(((FunctionObject*)callable)->call(args));
+	}
+	else if (callable->klass() == MethodKlass::get_instance()) {
+		MethodObject* method = (MethodObject*)callable;
+		if (!args) {
+			args = new ArrayList<HiObject*>(1);
+		}
+		args->insert(0, method->owner());
+		build_frame(method->func(), args);
 	}
 	else if (callable->klass() == FunctionKlass::get_instance()) {
 		FrameObject* frame = new FrameObject((FunctionObject*)callable, args);

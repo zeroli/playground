@@ -2,6 +2,9 @@
 #ifndef MAP_H_
 #define MAP_H_
 
+#include "universe.h"
+#include "hi_integer.h"
+
 template <typename K, typename V>
 class MapEntry {
 public:

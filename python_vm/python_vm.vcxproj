@@ -122,12 +122,14 @@
     <ClInclude Include="code_object.h" />
     <ClInclude Include="frame_object.h" />
     <ClInclude Include="function_object.h" />
+    <ClInclude Include="hi_dict.h" />
     <ClInclude Include="hi_integer.h" />
     <ClInclude Include="hi_object.h" />
     <ClInclude Include="hi_string.h" />
     <ClInclude Include="interpreter.h" />
     <ClInclude Include="klass.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="method_object.h" />
     <ClInclude Include="universe.h" />
   </ItemGroup>
   <ItemGroup>
@@ -135,11 +137,13 @@
     <ClCompile Include="bytecode.cc" />
     <ClCompile Include="frame_object.cc" />
     <ClCompile Include="function_object.cc" />
+    <ClCompile Include="hi_dict.cc" />
     <ClCompile Include="hi_integer.cc" />
     <ClCompile Include="hi_object.cc" />
     <ClCompile Include="hi_string.cc" />
     <ClCompile Include="interpreter.cc" />
     <ClCompile Include="main.cc" />
+    <ClCompile Include="method_object.cc" />
     <ClCompile Include="universe.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

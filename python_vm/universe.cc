@@ -1,6 +1,9 @@
 #include "universe.h"
 
 #include "hi_integer.h"
+#include "hi_string.h"
+#include "hi_dict.h"
+#include "function_object.h"
 
 HiInteger* Universe::HiTrue = nullptr;
 HiInteger* Universe::HiFalse = nullptr;
@@ -13,6 +16,10 @@ void Universe::genesis()
 	HiFalse = new HiInteger(0);
 
 	HiNone = new HiObject();
+
+	HiDict* klass_dict = new HiDict();
+	StringKlass::get_instance()->set_klass_dict(klass_dict);
+	klass_dict->put(new HiString("upper"), new FunctionObject(string_upper));
 }
 
 void Universe::destroy()

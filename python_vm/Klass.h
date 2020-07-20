@@ -4,15 +4,19 @@
 
 class HiString;
 class HiObject;
+class HiDict;
 
 class Klass {
 private:
 	HiString* _name;
+	HiDict* _klass_dict;
 public:
 	Klass() { }
 
 	void set_name(HiString* x) { _name = x; }
 	HiString* name() const { return _name; }
+	void set_klass_dict(HiDict* dict) { _klass_dict = dict; }
+	HiDict* klass_dict() const { return _klass_dict; }
 
 	virtual void print(const HiObject* obj) const { }
 
