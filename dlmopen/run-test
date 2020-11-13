@@ -1,0 +1,1 @@
+env LD_LIBRARY_PATH=.:gcc4.8/lib64:gcc7.3/lib64/ ./test

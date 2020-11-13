@@ -1,0 +1,1 @@
+./make-libdlopen_dep-so && ./make-dlopen_lib-so && ./make-libprog_dep-so && ./make-test && ./make-libdlopen_dep-so7 && ./make-dlopen_lib-so7

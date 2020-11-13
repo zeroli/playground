@@ -1,0 +1,15 @@
+Small project to simulate one binary could dl open 2 shared libraries,
+which are built from different gcc, one is gcc4.8, the other is gcc7.3, they have different libstdc++ libraries.
+Each shared library could use its own libstdc++ library correctly,
+and test binary and its dependencies could also use its own libraries correctly.
+
+***use dlopen with RTLD_DEEPBIND cannot solve this problem***
+***need use dlmopen with RTLD_DEEPBIND instead***
+
+main.cc =>(depends on) prog_dep shared library, which depends on gcc4.8's stdc++ library
+dlopen_lib => a shared library =>(depends on) libdlopen_dep shared library, which depends on gcc7.3's stdc++ library
+main.cc will dlmopen(LM_ID_NEWLM,...) the dlopen_lib shared library, with flag: RTLD_DEEPBIND, which will load libdlopen_dep shared library (gcc4)
+main.cc will dlmopen(LM_ID_NEWLM,...) the dlopen_lib_gcc7 shared library, with flag: RTLD_DEEPBIND, which will load libdlopen_dep_gcc7 shared libray (gcc7)
+
+these 2 dlopened libraries which are compiled with different gcc are able to co-exist run in same process, with correct isolation.
+

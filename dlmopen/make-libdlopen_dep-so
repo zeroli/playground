@@ -1,0 +1,1 @@
+gcc4.8/bin/g++ -o libdlopen_dep.so -shared -fPIC dlopen_dep.cc -g
