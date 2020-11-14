@@ -13,3 +13,69 @@ main.cc will dlmopen(LM_ID_NEWLM,...) the dlopen_lib_gcc7 shared library, with f
 
 these 2 dlopened libraries which are compiled with different gcc are able to co-exist run in same process, with correct isolation.
 
+output will be:
+====0====
+dlmopen dlopen_lib.so
+h=0xba7060
+dlopen_lib: std::cout = 0x7efe850bb640
+dlopen_dep: std::cout = 0x7efe850bb640
+this is duplicate function in dlopen_dep. address = 0x7efe850becc5
+duplicate var is dlopen_dep_var in dlopen_dep. address = 0x7efe852c0088
+
+dlmopen dlopen_lib_gcc7.so
+h=0xba9f30
+dlopen_lib: std::cout = 0x7efe84044fc0
+dlopen_dep: std::cout = 0x7efe84044fc0
+this is duplicate function in dlopen_dep. address = 0x7efe840cccca
+duplicate var is dlopen_dep_var in dlopen_dep. address = 0x7efe842ce0c0
+
+prog_dep: std::cout = 0x6020a0
+this is duplicate function in prog_dep. address = 0x7efe862b4cc5
+duplicate var is prog_dep_var in prog_dep. address = 0x7efe864b6088
+main: std::cout = 0x6020a0
+this is output from main's cout
+foo in prog_staticlib
+
+
+====1====
+if we use dlopen with RTLD_DEEPBIND flag to open 2 libraries, and use -fPIC to compile all code of binary, output will be:
+
+dlopen dlopen_lib.so
+h=0x110a060
+dlopen_lib: std::cout = 0x7f391bdaa640
+dlopen_dep: std::cout = 0x7f391bdaa640
+this is duplicate function in dlopen_dep. address = 0x7f391adbbcc5
+duplicate var is dlopen_dep_var in dlopen_dep. address = 0x7f391afbd088
+dlopen dlopen_lib_gcc7.so
+h=0x110ad50
+dlopen_lib: std::cout = prog_dep: std::cout = 0x7f391bdaa640   // this line has issue, gcc7's libstdc++ not working correctly
+this is duplicate function in prog_dep. address = 0x7f391bfb1cc5
+duplicate var is prog_dep_var in prog_dep. address = 0x7f391c1b3088
+main: std::cout = 0x7f391bdaa640
+this is output from main's cout
+foo in prog_staticlib
+
+====2====
+if we use dlmopen with RTLD_DEEPBIND flag to open 2 libraries, and use -fPIC to compile all code of binary, output will be:
+
+dlmopen dlopen_lib.so
+h=0x2516060
+dlopen_lib: std::cout = 0x7f5a34bf4640
+dlopen_dep: std::cout = 0x7f5a34bf4640
+this is duplicate function in dlopen_dep. address = 0x7f5a34bf7cc5
+duplicate var is dlopen_dep_var in dlopen_dep. address = 0x7f5a34df9088
+dlmopen dlopen_lib_gcc7.so
+h=0x2518f30
+dlopen_lib: std::cout = 0x7f5a33b7dfc0
+dlopen_dep: std::cout = 0x7f5a33b7dfc0
+this is duplicate function in dlopen_dep. address = 0x7f5a33c05cca
+duplicate var is dlopen_dep_var in dlopen_dep. address = 0x7f5a33e070c0
+prog_dep: std::cout = 0x7f5a35be6640
+this is duplicate function in prog_dep. address = 0x7f5a35dedcc5
+duplicate var is prog_dep_var in prog_dep. address = 0x7f5a35fef088
+main: std::cout = 0x7f5a35be6640  
+this is output from main's cout
+foo in prog_staticlib
+
+>>>main's std::cout's address is different from output of dlopen_lib.so, which means dlmopen will duplicate another one of gcc4's libstdc++ for dlopen_lib.so
+even though we used -fPIC, same as not using -fPIC flag.
