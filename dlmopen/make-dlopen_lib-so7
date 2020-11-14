@@ -1,2 +1,6 @@
-/usr/local/brion_AVX/gcc/7.3.0_1/bin/g++ -o dlopen_lib_gcc7.so -shared -fPIC dlopen_lib.cc -L. -ldlopen_dep_gcc7 -g
-patchelf --replace-needed libstdc++.so.6 libstdc++.so.7 dlopen_lib_gcc7.so
+#gcc7.3/bin/g++ -o dlopen_lib_gcc7.so -shared -fPIC dlopen_lib.cc -L. -ldlopen_dep_gcc7 -g
+#patchelf --replace-needed libstdc++.so.6 libstdc++.so.7 dlopen_lib_gcc7.so
+#DON'T know why don't work above
+
+gcc7.3/bin/g++ -o dlopen_lib_gcc7.o -c -fPIC dlopen_lib.cc -g
+gcc7.3/bin/../libexec/gcc/x86_64-redhat-linux/7.3.0/collect2 --build-id --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -shared -o dlopen_lib_gcc7.so /lib/../lib64/crti.o gcc7.3/bin/../lib/gcc/x86_64-redhat-linux/7.3.0/crtbeginS.o -Lgcc7.3/bin/../lib/gcc/x86_64-redhat-linux/7.3.0 -Lgcc7.3/bin/../lib/gcc -Lgcc7.3/bin/../lib/gcc/x86_64-redhat-linux/7.3.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -Lgcc7.3/bin/../lib/gcc/x86_64-redhat-linux/7.3.0/../../.. ./dlopen_lib_gcc7.o -L. -ldlopen_dep_gcc7 gcc7.3/lib64/libstdc++.so.7 -lm -lgcc_s -lc -lgcc_s gcc7.3/bin/../lib/gcc/x86_64-redhat-linux/7.3.0/crtendS.o /lib/../lib64/crtn.o
