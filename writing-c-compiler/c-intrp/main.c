@@ -76,90 +76,128 @@ int eval() {
     int op, *tmp;
     while (1) {
         op = (int)*pc++;
-        if (op == IMM) {
+        switch (op) {
+        case IMM:
             ax = *pc++;
-        } else if (op == LC) {
+            break;
+        case LC:
             ax = *(char*)ax;
-        } else if (op == LI) {
+            break;
+        case LI:
             ax = *(int*)ax;
-        } else if (op == SC) {
+            break;
+        case SC:
             *(char*)*sp++ = ax;
-        } else if (op == SI) {
+            break;
+        case SI:
             *(int*)*sp++ = ax;
-        } else if (op == PUSH) {
+            break;
+        case PUSH:
             *--sp = ax;
-        } else if (op == JMP) {
+            break;
+        case JMP:
             pc = (int*)*pc;
-        } else if (op == JZ) {
+            break;
+        case JZ:
             pc = ax ? pc + 1 : (int*)*pc;
-        } else if (op == JNZ) {
+            break;
+        case JNZ:
             pc = ax ? (int*)*pc : pc + 1;
-        } else if (op == CALL) {
+            break;
+        case CALL:
             *--sp = (int)(pc+1);
             pc = (int*)*pc;
-        } else if (op == ENT) {
+            break;
+        case ENT:
             *--sp = (int)bp;
             bp = sp;
             sp = sp - *pc++;
-        } else if (op == ADJ) {
+            break;
+        case ADJ:
             sp = sp + *pc++;
-        } else if (op == LEV) {
+            break;
+        case LEV:
             sp = bp;
             bp = (int*)*sp++;
             pc = (int*)*sp++;
-        } else if (op == LEA) {
+            break;
+        case LEA:
             ax = (int)(bp + *pc++);
-        } else if (op == OR) {
+            break;
+        case OR:
             ax = *sp++ | ax;
-        } else if (op == XOR) {
+            break;
+        case XOR:
             ax = *sp++ ^ ax;
-        } else if (op == AND) {
+            break;
+        case AND:
             ax = *sp++ & ax;
-        } else if (op == EQ) {
+            break;
+        case EQ:
             ax = *sp++ == ax;
-        } else if (op == NE) {
+            break;
+        case NE:
             ax = *sp++ != ax;
-        } else if (op == LT) {
+            break;
+        case LT:
             ax = *sp++ < ax;
-        } else if (op == LE) {
+            break;
+        case LE:
             ax = *sp++ <= ax;
-        } else if (op == GT) {
+            break;
+        case GT:
             ax = *sp++ > ax;
-        } else if (op == GE) {
+            break;
+        case GE:
             ax = *sp++ >= ax;
-        } else if (op == SHL) {
+            break;
+        case SHL:
             ax = *sp++ << ax;
-        } else if (op == SHR) {
+            break;
+        case SHR:
             ax = *sp++ >> ax;
-        } else if (op == ADD) {
+            break;
+        case ADD:
             ax = *sp++ + ax;
-        } else if (op == SUB) {
+            break;
+        case SUB:
             ax = *sp++ - ax;
-        } else if (op == MUL) {
+            break;
+        case MUL:
             ax = *sp++ * ax;
-        } else if (op == DIV) {
+            break;
+        case DIV:
             ax = *sp++ / ax;
-        } else if (op == MOD) {
+            break;
+        case MOD:
             ax = *sp++ % ax;
-        } else if (op == EXIT) {
+            break;
+        case EXIT:
             printf("exit(%d)", *sp);
             return *sp;
-        } else if (op == OPEN) {
+        case OPEN:
             ax = open((char*)sp[1], sp[0]);
-        } else if (op == CLOS) {
+            break;
+        case CLOS:
             ax = close(*sp);
-        } else if (op == READ) {
+            break;
+        case READ:
             ax = read(sp[2], (char*)sp[1], *sp);
-        } else if (op == PRTF) {
+            break;
+        case PRTF:
             tmp = sp + pc[1];
             ax = printf((char*)tmp[-1], tmp[-2], tmp[-3], tmp[-4], tmp[-5], tmp[-6]);
-        } else if (op == MALC) {
+            break;
+        case MALC:
             ax = (int)malloc(*sp);
-        } else if (op == MSET) {
+            break;
+        case MSET:
             ax = (int)memset((char*)sp[2], sp[1], *sp);
-        } else if (op == MCMP) {
+            break;
+        case MCMP:
             ax = memcmp((char*)sp[2], (char*)sp[1], *sp);
-        } else {
+            break;
+        default:
             printf("unknown instruction:%d\n", op);
             return -1;
         }
@@ -172,7 +210,7 @@ int main(int argc, char** argv)
     int i, fd;
     poolsize = 256 * 1024;  // arbitrary size
     line = 1;
-
+#if 1
     argc--;
     argv++;
     if ((fd = open(*argv, 0)) < 0) {
@@ -192,7 +230,7 @@ int main(int argc, char** argv)
     }
     src[i] = 0;  // add EOF charater
     close(fd);
-
+#endif
     // allocate memory for virtual machine
     if (!(text = old_text = malloc(poolsize))) {
         printf("could not malloc(%d) for text area\n", poolsize);
@@ -224,8 +262,9 @@ int main(int argc, char** argv)
     text[i++] = PUSH;
     text[i++] = EXIT;
     pc = text;
+#else
+    program();
 #endif
 
-    program();
     return eval();
 }
