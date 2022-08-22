@@ -1,7 +1,7 @@
 #ifndef SIMPLEDB_STATEMENT_H_
 #define SIMPLEDB_STATEMENT_H_
 
-#include "table.h"
+#include "row.h"
 
 enum StatementType {
     STATEMENT_INSERT,

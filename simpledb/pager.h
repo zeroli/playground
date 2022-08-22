@@ -3,12 +3,14 @@
 
 #include <cstdio>
 
-const uint32_t PAGE_SIZE = 4096;
+#include "config.h"
+
 #define TABLE_MAX_PAGES 100
 
 struct Pager {
     FILE* fp;
     uint32_t file_length;
+    uint32_t num_pages;
     void* pages[TABLE_MAX_PAGES];
 };
 
@@ -37,11 +39,15 @@ void * get_page(Pager* pager, uint32_t page_num)
             }
         }
         pager->pages[page_num] = page;
+
+        if (page_num >= pager->num_pages) {
+            pager->num_pages = page_num + 1;
+        }
     }
     return pager->pages[page_num];
 }
 
-void pager_flush(Pager* pager, uint32_t page_num, uint32_t size)
+void pager_flush(Pager* pager, uint32_t page_num)
 {
     if (pager->pages[page_num] == NULL) {
         printf("Tried to flush null page\n");
@@ -52,7 +58,7 @@ void pager_flush(Pager* pager, uint32_t page_num, uint32_t size)
         printf("Error seeking: %d\n", ferror(pager->fp));
         exit(-1);
     }
-    ssize_t bytes_written = fwrite(pager->pages[page_num], size, 1, pager->fp);
+    ssize_t bytes_written = fwrite(pager->pages[page_num], PAGE_SIZE, 1, pager->fp);
     if (bytes_written == -1) {
         printf("Error writing: %d\n", ferror(pager->fp));
         exit(-1);
@@ -70,6 +76,12 @@ Pager* pager_open(const char* filename)
     Pager* pager = new Pager();
     pager->fp = fp;
     pager->file_length = file_length;
+    pager->num_pages = (file_length / PAGE_SIZE);
+    if (file_length % PAGE_SIZE != 0) {
+        printf("Db file is not a whole number of pages. Currupt file.\n");
+        exit(-1);
+    }
+
     for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
         pager->pages[i] = NULL;
     }
