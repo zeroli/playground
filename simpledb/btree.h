@@ -33,8 +33,13 @@ const uint8_t COMMON_NODE_HEADER_SIZE =
 // leaf node header layout
 const uint32_t LEAF_NODE_NUM_CELLS_SIZE = sizeof(uint32_t);
 const uint32_t LEAF_NODE_NUM_CELLS_OFFSET = COMMON_NODE_HEADER_SIZE;
+const uint32_t LEAF_NODE_NEXT_LEAF_SIZE = sizeof(uint32_t);
+const uint32_t LEAF_NODE_NEXT_LEAF_OFFSET =
+    LEAF_NODE_NUM_CELLS_OFFSET + LEAF_NODE_NEXT_LEAF_SIZE;
 const uint32_t LEAF_NODE_HEADER_SIZE =
-    COMMON_NODE_HEADER_SIZE + LEAF_NODE_NUM_CELLS_SIZE;
+    COMMON_NODE_HEADER_SIZE +
+    LEAF_NODE_NUM_CELLS_SIZE +
+    LEAF_NODE_NEXT_LEAF_SIZE;
 
 // leaf node body layout
 const uint32_t LEAF_NODE_KEY_SIZE = sizeof(uint32_t);
@@ -99,6 +104,11 @@ uint32_t* leaf_node_key(void* node, uint32_t cell_num)
 void* leaf_node_value(void* node, uint32_t cell_num)
 {
     return (char*)leaf_node_cell(node, cell_num) + LEAF_NODE_KEY_SIZE;
+}
+
+uint32_t* leaf_node_next_leaf(void* node)
+{
+    return (uint32_t*)((char*)node + LEAF_NODE_NEXT_LEAF_OFFSET);
 }
 
 NodeType get_node_type(void* node)
@@ -175,6 +185,7 @@ void initialize_leaf_node(void* node)
     set_node_type(node, NODE_LEAF);
     set_node_root(node, false);
     *leaf_node_num_cells(node) = 0;
+    *leaf_node_next_leaf(node) = 0;
 }
 
 void initialize_internal_node(void* node)
