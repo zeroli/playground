@@ -88,4 +88,13 @@ Pager* pager_open(const char* filename)
     return pager;
 }
 
+/*
+ Until we start recycling free pages, new pages will always
+ go onto the end of the database file
+*/
+uint32_t get_unused_page_num(Pager* pager)
+{
+    return pager->num_pages;
+}
+
 #endif  // SIMPLEDB_PAGER_H_
